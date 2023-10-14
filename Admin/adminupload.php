@@ -25,51 +25,102 @@ function generateRandomPassword($length = 8)
     return $randomPassword;
 }
 
-if (isset($_FILES['file'])) {
-    $file = $_FILES['file']['tmp_name'];
-    $fileType = $_FILES['file']['type'];
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    if (isset($_FILES['file'])) {
+        $file = $_FILES['file']['tmp_name'];
+        $fileType = $_FILES['file']['type'];
 
-    if (
-        $fileType === 'text/csv' ||
-        $fileType === 'application/vnd.ms-excel' ||
-        $fileType === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-    ) {
-        $handle = fopen($file, "r");
-        $dataArray = array();
-        $skipFirstRow = true;
+        if (
+            $fileType === 'text/csv' ||
+            $fileType === 'application/vnd.ms-excel' ||
+            $fileType === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        ) {
+            $handle = fopen($file, "r");
+            $dataArray = array();
+            $skipFirstRow = true;
+            $duplicateEntries = [];
 
-        while (($data = fgetcsv($handle, 1000, ",")) !== false) {
-            if ($skipFirstRow) {
-                $skipFirstRow = false;
-                continue;
+            while (($data = fgetcsv($handle, 1000, ",")) !== false) {
+                if ($skipFirstRow) {
+                    $skipFirstRow = false;
+                    continue;
+                }
+
+                $fid = $data[0];
+                $femail = $data[3];
+
+                // Check for duplicate entries by fid or femail
+                $stmt = $conn->prepare("SELECT COUNT(*) FROM faculty WHERE fid = ? OR femail = ?");
+                $stmt->bind_param("ss", $fid, $femail);
+                $stmt->execute();
+                $stmt->bind_result($count);
+                $stmt->fetch();
+                $stmt->close();
+
+                if ($count > 0) {
+                    $duplicateEntries[] = $fid;
+                } else {
+                    // Generate a random password
+                    $data[] = generateRandomPassword();
+
+                    $dataArray[] = $data;
+                }
             }
 
-            // Generate a random password
-            $data[] = generateRandomPassword();
+            fclose($handle);
 
-            $dataArray[] = $data;
-        }
-
-        fclose($handle);
-
-        try {
-            $sql = "INSERT INTO faculty (fid, fname, fdept, femail, fphno, fpass) VALUES (?, ?, ?, ?, ?, ?)";
-            $stmt = $conn->prepare($sql);
-
-            foreach ($dataArray as $row) {
-                $stmt->execute($row);
+            if (!empty($duplicateEntries)) {
+                echo "Duplicate entries found for the following faculty IDs: " . implode(', ', $duplicateEntries);
             }
 
-            echo "CSV data has been successfully inserted into the database.";
+            if (!empty($dataArray)) {
+                try {
+                    $sql = "INSERT INTO faculty (fid, fname, fdept, femail, fphno, fpass) VALUES (?, ?, ?, ?, ?, ?)";
+                    $stmt = $conn->prepare($sql);
 
-            // echo "<pre>";
-            // print_r($dataArray);
-            // echo "</pre>";
-        } catch (PDOException $e) {
-            echo "Database Error: " . $e->getMessage();
+                    foreach ($dataArray as $row) {
+                        $stmt->execute($row);
+                    }
+
+                    echo "CSV data has been successfully inserted into the database.";
+                } catch (PDOException $e) {
+                    echo "Database Error: " . $e->getMessage();
+                }
+            }
+        } else {
+            echo "Please upload a valid CSV file.";
         }
     } else {
-        echo "Please upload a valid CSV file.";
+        // Handle manual faculty entry
+        $fid = $_POST['fid'];
+        $fname = $_POST['fname'];
+        $fdept = $_POST['fdept'];
+        $femail = $_POST['femail'];
+        $fphno = $_POST['fphno'];
+
+        // Check for duplicate entries by fid or femail
+        $stmt = $conn->prepare("SELECT COUNT(*) FROM faculty WHERE fid = ? OR femail = ?");
+        $stmt->bind_param("ss", $fid, $femail);
+        $stmt->execute();
+        $stmt->bind_result($count);
+        $stmt->fetch();
+        $stmt->close();
+
+        if ($count > 0) {
+            echo "Duplicate entry found for the provided faculty ID or email.";
+        } else {
+            $fpass = generateRandomPassword();
+
+            try {
+                $sql = "INSERT INTO faculty (fid, fname, fdept, femail, fphno, fpass) VALUES (?, ?, ?, ?, ?, ?)";
+                $stmt = $conn->prepare($sql);
+                $stmt->execute([$fid, $fname, $fdept, $femail, $fphno, $fpass]);
+
+                echo "Faculty details added to the database with a random password.";
+            } catch (PDOException $e) {
+                echo "Database Error: " . $e->getMessage();
+            }
+        }
     }
 }
 
@@ -90,6 +141,26 @@ $conn = null;
     <form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post" enctype="multipart/form-data">
         <input type="file" name="file" accept=".csv, application/vnd.ms-excel, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
         <input type="submit" name="upload" value="Upload">
+    </form>
+
+    <h2>Manual Faculty Entry</h2>
+    <form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post">
+        <label for="fid">Faculty ID:</label>
+        <input type="text" name="fid" required><br>
+
+        <label for="fname">Faculty Name:</label>
+        <input type="text" name="fname" required><br>
+
+        <label for="fdept">Faculty Department:</label>
+        <input type="text" name="fdept" required><br>
+
+        <label for="femail">Faculty Email:</label>
+        <input type="email" name="femail" required><br>
+
+        <label for="fphno">Faculty Phone Number:</label>
+        <input type="text" name="fphno" required><br>
+
+        <input type="submit" name="add-faculty" value="Add Faculty">
     </form>
 </body>
 
