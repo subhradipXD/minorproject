@@ -11,7 +11,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     if ($result && mysqli_num_rows($result) > 0) {
         // Login successful, redirect to the faculty dashboard
-        echo "<alert>login Successful<alert>";
+        header("location: facultyDashboard/facultydasboard.php");
         exit;
     } else {
         echo "<p class='error'>Invalid email or password. Please try again.</p>";

@@ -1,5 +1,5 @@
 <?php
-require '../connect.php';
+require '../../connect.php';
 
 // Handle the submission of new research work
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -29,9 +29,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     } else {
         echo "Error: " . $stmt->error;
     }
-
-    // Close the database connection
-    $conn->close();
 }
 
 // Retrieve and display all research work projects
@@ -47,7 +44,7 @@ $result = $conn->query($sql);
 <head>
     <meta charset="UTF-8">
     <title>Research Paper Details</title>
-    <link rel="stylesheet" type="text/css" href="fdash.css">
+    <link rel="stylesheet" type="text/css" href="frupload.css">
 </head>
 
 <body>
