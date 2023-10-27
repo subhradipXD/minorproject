@@ -14,9 +14,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $result = $stmt->get_result();
 
     if ($result->num_rows == 1) {
-        // Admin login successful, you can redirect to a dashboard or another page
+        // Admin login successful, store adminid and instid in the session
+        $_SESSION['adminid'] = $adminid;
+        $_SESSION['instid'] = $instid;
+        
+        // Redirect to the admin dashboard or another page
         header("location: admindashboard.php");
-        echo "Login successful! Redirect to the admin dashboard...";
+        exit;
     } else {
         echo "Invalid login credentials. Please try again.";
     }

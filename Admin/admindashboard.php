@@ -1,6 +1,12 @@
 <?php
 require '../connect.php'; // Include the database connection file
 
+if (!isset($_SESSION['adminid']) || !isset($_SESSION['instid'])) {
+    // Redirect to the login page if not logged in
+    header("location: adminlogin.php");
+    exit;
+}
+
 function generateRandomPassword($length = 8)
 {
     $uppercaseChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -63,6 +69,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     // Generate a random password
                     $data[] = generateRandomPassword();
 
+                    // Add instid and adminid from the session
+                    $data[] = $_SESSION['instid'];
+                    $data[] = $_SESSION['adminid'];
+
                     $dataArray[] = $data;
                 }
             }
@@ -75,11 +85,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
             if (!empty($dataArray)) {
                 try {
-                    $sql = "INSERT INTO faculty (fid, fname, fdept, femail, fphno, fpass) VALUES (?, ?, ?, ?, ?, ?)";
+                    $sql = "INSERT INTO faculty (fid, fname, fdept, femail, fphno, fpass, instid, adminid) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
                     $stmt = $conn->prepare($sql);
 
                     foreach ($dataArray as $row) {
-                        $stmt->execute($row);
+                        $stmt->bind_param("ssssssss", ...$row); // Bind parameters correctly
+                        $stmt->execute();
                     }
 
                     echo "CSV data has been successfully inserted into the database.";
@@ -90,7 +101,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         } else {
             echo "Please upload a valid CSV file.";
         }
-    } else {
+    } elseif (isset($_POST['fid']) && isset($_POST['fname']) && isset($_POST['fdept']) && isset($_POST['femail']) && isset($_POST['fphno'])) {
         // Handle manual faculty entry
         $fid = $_POST['fid'];
         $fname = $_POST['fname'];
@@ -111,10 +122,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         } else {
             $fpass = generateRandomPassword();
 
+            // Add instid and adminid from the session
+            $instid = $_SESSION['instid'];
+            $adminid = $_SESSION['adminid'];
+
             try {
-                $sql = "INSERT INTO faculty (fid, fname, fdept, femail, fphno, fpass) VALUES (?, ?, ?, ?, ?, ?)";
+                $sql = "INSERT INTO faculty (fid, fname, fdept, femail, fphno, fpass, instid, adminid) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
                 $stmt = $conn->prepare($sql);
-                $stmt->execute([$fid, $fname, $fdept, $femail, $fphno, $fpass]);
+                $stmt->bind_param("ssssssss", $fid, $fname, $fdept, $femail, $fphno, $fpass, $instid, $adminid);
+                $stmt->execute();
 
                 echo "Faculty details added to the database with a random password.";
             } catch (PDOException $e) {
@@ -162,7 +178,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         <input type="submit" name="add-faculty" value="Add Faculty">
     </form>
-
 
     <h2>Faculty Details</h2>
     <table>
