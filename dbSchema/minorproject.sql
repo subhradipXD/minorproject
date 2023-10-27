@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Oct 26, 2023 at 11:25 PM
+-- Generation Time: Oct 27, 2023 at 12:15 PM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -54,12 +54,36 @@ INSERT INTO `activity` (`instid`, `activityid`, `activityname`, `scheme`, `repor
 
 CREATE TABLE `admin` (
   `instid` varchar(255) NOT NULL,
+  `instname` varchar(255) NOT NULL,
+  `instlogo` varchar(255) NOT NULL,
+  `instadd` varchar(255) NOT NULL,
+  `instemail` varchar(255) NOT NULL,
+  `instphno` varchar(255) NOT NULL,
   `adminid` varchar(255) NOT NULL,
   `name` varchar(255) NOT NULL,
   `email` varchar(255) NOT NULL,
   `phno` varchar(255) NOT NULL,
   `pass` varchar(255) NOT NULL,
-  `image` varchar(255) NOT NULL
+  `adminimage` varchar(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `admin`
+--
+
+INSERT INTO `admin` (`instid`, `instname`, `instlogo`, `instadd`, `instemail`, `instphno`, `adminid`, `name`, `email`, `phno`, `pass`, `adminimage`) VALUES
+('hitk4825', 'hitk', 'uploads/PXL_20230226_130935909.NIGHT.jpg', 'none', 'hitk@gmail.com', '+919635760319', 'hitk4825Subh4066', 'Subhradip Das', 'subhradipdas6969@gmail.com', '+919635760319', 'Joydas', 'uploads/Snapchat-1059982910.jpg');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `department`
+--
+
+CREATE TABLE `department` (
+  `instid` varchar(255) NOT NULL,
+  `deptid` varchar(255) NOT NULL,
+  `deptname` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -97,6 +121,8 @@ INSERT INTO `event` (`instid`, `eventid`, `eventname`, `eventyear`, `c_a_n_govt`
 --
 
 CREATE TABLE `faculty` (
+  `instid` varchar(255) NOT NULL,
+  `adminid` varchar(255) NOT NULL,
   `fid` varchar(255) NOT NULL,
   `fname` varchar(255) NOT NULL,
   `fdept` varchar(255) NOT NULL,
@@ -109,17 +135,17 @@ CREATE TABLE `faculty` (
 -- Dumping data for table `faculty`
 --
 
-INSERT INTO `faculty` (`fid`, `fname`, `fdept`, `femail`, `fphno`, `fpass`) VALUES
-('BTech1', 'Adhiraj', 'BTechCS', 'adhiraj.mca@gmail.com', 123456789, 'CBz1I91p'),
-('BTech2', 'Gourav', 'BTechCS', 'gourav.mca@gmail.com', 123456789, 'tzImpk4F'),
-('BTech3', '', 'BTechCS', '.mca@gmail.com', 123456789, 'MC9u5p3Y'),
-('EC1', 'Som', 'EC', 'som.mca@gmail.com', 123456789, 'x4WiNXzG'),
-('EC2', 'Subhra', 'EC', 'subhra.mca@gmail.com', 123456789, 'x5NN8vAh'),
-('EC3', 'Priya', 'EC', 'priya.mca@gmail.com', 123456789, 'i6X0tNNP'),
-('MCA1', 'Arjun', 'MCA', 'arjun.mca@gmail.com', 123456789, '7K07mdfj'),
-('MCA2', 'Soumik', 'MCA', 'soumik.mca@gmail.com', 123456789, 'KRiY7n0g'),
-('MCA3', '', 'MCA', '.mca@gmail.com', 123456789, 'csrO584o'),
-('MCA4', 'Subhradip', 'MCA', 'subhradipdas6969@gmail.com', 2147483647, 'grH9SkQO');
+INSERT INTO `faculty` (`instid`, `adminid`, `fid`, `fname`, `fdept`, `femail`, `fphno`, `fpass`) VALUES
+('', '', 'BTech1', 'Adhiraj', 'BTechCS', 'adhiraj.mca@gmail.com', 123456789, 'CBz1I91p'),
+('', '', 'BTech2', 'Gourav', 'BTechCS', 'gourav.mca@gmail.com', 123456789, 'tzImpk4F'),
+('', '', 'BTech3', '', 'BTechCS', '.mca@gmail.com', 123456789, 'MC9u5p3Y'),
+('', '', 'EC1', 'Som', 'EC', 'som.mca@gmail.com', 123456789, 'x4WiNXzG'),
+('', '', 'EC2', 'Subhra', 'EC', 'subhra.mca@gmail.com', 123456789, 'x5NN8vAh'),
+('', '', 'EC3', 'Priya', 'EC', 'priya.mca@gmail.com', 123456789, 'i6X0tNNP'),
+('', '', 'MCA1', 'Arjun', 'MCA', 'arjun.mca@gmail.com', 123456789, '7K07mdfj'),
+('', '', 'MCA2', 'Soumik', 'MCA', 'soumik.mca@gmail.com', 123456789, 'KRiY7n0g'),
+('', '', 'MCA3', '', 'MCA', '.mca@gmail.com', 123456789, 'csrO584o'),
+('', '', 'MCA4', 'Subhradip', 'MCA', 'subhradipdas6969@gmail.com', 2147483647, 'grH9SkQO');
 
 -- --------------------------------------------------------
 
@@ -162,7 +188,14 @@ ALTER TABLE `activity`
 -- Indexes for table `admin`
 --
 ALTER TABLE `admin`
-  ADD PRIMARY KEY (`adminid`);
+  ADD PRIMARY KEY (`instid`,`adminid`);
+
+--
+-- Indexes for table `department`
+--
+ALTER TABLE `department`
+  ADD PRIMARY KEY (`deptid`,`instid`),
+  ADD KEY `instid` (`instid`);
 
 --
 -- Indexes for table `event`
@@ -175,6 +208,16 @@ ALTER TABLE `event`
 --
 ALTER TABLE `faculty`
   ADD PRIMARY KEY (`fid`);
+
+--
+-- Constraints for dumped tables
+--
+
+--
+-- Constraints for table `department`
+--
+ALTER TABLE `department`
+  ADD CONSTRAINT `department_ibfk_1` FOREIGN KEY (`instid`) REFERENCES `admin` (`instid`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
