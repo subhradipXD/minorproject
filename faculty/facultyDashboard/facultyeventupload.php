@@ -68,7 +68,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <input type="text" name="c_a_n_govt_contact" required><br>
 
         <label for="c_a_ind">Collaborated Industry:</label>
-        <input type text" name="c_a_ind" required><br>
+        <input type ="text" name="c_a_ind" required><br>
 
         <label for="c_a_ind_contact">Industry Contact Details:</label>
         <input type="text" name="c_a_ind_contact" required><br>
