@@ -1,9 +1,40 @@
 <?php
 require '../../connect.php';
 
+// Check if the faculty is logged in with the sessions
+if (!isset($_SESSION['fid']) || !isset($_SESSION['instid'])) {
+    header("Location: ../facultylogin.php");
+    exit;
+}
+
+$faculty_id = $_SESSION['fid'];
+$inst_id = $_SESSION['instid'];
+
+// Fetch department names for the first dropdown
+$dept_query = "SELECT DISTINCT fdept FROM faculty WHERE instid = ?";
+$dept_stmt = $conn->prepare($dept_query);
+$dept_stmt->bind_param("s", $inst_id);
+$dept_stmt->execute();
+$dept_result = $dept_stmt->get_result();
+
+// Fetch faculty names for the second dropdown
+$faculty_query = "SELECT fname, fid FROM faculty WHERE instid = ?";
+$faculty_stmt = $conn->prepare($faculty_query);
+$faculty_stmt->bind_param("s", $inst_id);
+$faculty_stmt->execute();
+$faculty_result = $faculty_stmt->get_result();
+
 // Handle the submission of new research work
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // Get the selected department and faculty name from the form
+    $selectedDepartment = $_POST["faculty_department"];
+    $selectedFaculty = $_POST["faculty_name"];
+
+    // Generate a project ID
+    $randomNumber = str_pad(mt_rand(1, 9999), 4, '0', STR_PAD_LEFT);
     $proname = $_POST["proname"];
+    $proid = $proname . $randomNumber;
+
     $picopi = $_POST["picopi"];
     $fundagent = $_POST["fundagent"];
     $award = $_POST["award"];
@@ -20,9 +51,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     move_uploaded_file($_FILES["activereport"]["tmp_name"], $activereport);
 
     // Insert data into the "researchwork" table
-    $sql = "INSERT INTO researchwork (proname, picopi, fundagent, award, duration, ecopy, fundstatement, activereport) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+    $sql = "INSERT INTO researchwork (proid, instid, deptname, fid, proname, picopi, fundagent, award, duration, ecopy, fundstatement, activereport) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("sssiisss", $proname, $picopi, $fundagent, $award, $duration, $ecopy, $fundstatement, $activereport);
+    $stmt->bind_param("sssssssiisss", $proid, $inst_id, $selectedDepartment, $selectedFaculty, $proname, $picopi, $fundagent, $award, $duration, $ecopy, $fundstatement, $activereport);
 
     if ($stmt->execute()) {
         echo "Research paper details have been successfully submitted.";
@@ -32,13 +63,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 }
 
 // Retrieve and display all research work projects
-$sql = "SELECT * FROM researchwork";
-$result = $conn->query($sql);
-
+$sql = "SELECT * FROM researchwork WHERE instid = ?";
+$result = $conn->prepare($sql);
+$result->bind_param("s", $inst_id);
+$result->execute();
+$researchwork_result = $result->get_result();
 ?>
 
 <!DOCTYPE html>
-<html>
 <html lang="en">
 
 <head>
@@ -55,6 +87,26 @@ $result = $conn->query($sql);
 
         <label for="picopi">Name of Project Instructor:</label>
         <input type="text" name="picopi" required><br>
+
+        <label for ="faculty_department">Select Department:</label>
+        <select name="faculty_department" required>
+            <option value="" disabled selected>Select Department</option>
+            <?php
+            while ($dept_row = $dept_result->fetch_assoc()) {
+                echo '<option value="' . $dept_row['fdept'] . '">' . $dept_row['fdept'] . '</option>';
+            }
+            ?>
+        </select>
+
+        <label for ="faculty_name">Select Faculty Name:</label>
+        <select name="faculty_name" required>
+            <option value="" disabled selected>Select Faculty Name</option>
+            <?php
+            while ($faculty_row = $faculty_result->fetch_assoc()) {
+                echo '<option value="' . $faculty_row['fid'] . '">' . $faculty_row['fname'] . '</option>';
+            }
+            ?>
+        </select>
 
         <label for="fundagent">Funding Agency:</label>
         <input type="text" name="fundagent" required><br>
@@ -78,7 +130,7 @@ $result = $conn->query($sql);
     </form>
 
     <h2>Research Work Details</h2>
-    <?php if ($result->num_rows > 0) : ?>
+    <?php if ($researchwork_result->num_rows > 0) : ?>
         <table>
             <tr>
                 <th>Name of Project</th>
@@ -90,7 +142,7 @@ $result = $conn->query($sql);
                 <th>Fund Release Statement</th>
                 <th>Activity Report</th>
             </tr>
-            <?php while ($row = $result->fetch_assoc()) : ?>
+            <?php while ($row = $researchwork_result->fetch_assoc()) : ?>
                 <tr>
                     <td><?php echo $row["proname"]; ?></td>
                     <td><?php echo $row["picopi"]; ?></td>

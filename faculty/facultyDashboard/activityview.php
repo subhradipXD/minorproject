@@ -2,9 +2,8 @@
 require '../../connect.php';
 
 // Fetch event details from the database
-$sql = "SELECT * FROM activity";
+$sql = "SELECT * FROM event";
 $result = $conn->query($sql);
-
 ?>
 
 <!DOCTYPE html>
@@ -30,27 +29,41 @@ $result = $conn->query($sql);
     <?php
     if ($result->num_rows > 0) {
         while ($row = $result->fetch_assoc()) {
-            $eventname = $row["activityname"];
-            $description = $row["scheme"];
-            $participation = $row["avgstu"];
+            $eventname = $row["eventname"];
+            $eventyear = $row["eventyear"];
+            $scheme = $row["scheme"];
+            $c_a_n_govt = $row["c_a_n_govt"];
+            $c_a_n_govt_contact = $row["c_a_n_govt_contact"];
+            $c_a_ind = $row["c_a_ind"];
+            $c_a_ind_contact = $row["c_a_ind_contact"];
+            $c_a_ngo = $row["c_a_ngo"];
+            $c_a_ngo_contact = $row["c_a_ngo_contact"];
+            $avgstu = $row["avgstu"];
             $addinfo = $row["addinfo"];
-            $reports = explode(", ", $row["reports"]);
-            $images = explode(", ", $row["images"]);
+            $reports = json_decode($row["reports"]);
+            $images = json_decode($row["images"]);
 
             echo '<div class="event-card">';
             echo "<h3>$eventname</h3>";
-            echo "<p>Description: $description</p>";
-            echo "<p>Number of Students Participated: $participation</p>";
+            echo "<p>Event Year: $eventyear</p>";
+            echo "<p>Scheme: $scheme</p>";
+            echo "<p>Collaborated Non-Government Agency: $c_a_n_govt</p>";
+            echo "<p>Non-Government Agency Contact Details: $c_a_n_govt_contact</p>";
+            echo "<p>Collaborated Industry: $c_a_ind</p>";
+            echo "<p>Industry Contact Details: $c_a_ind_contact</p>";
+            echo "<p>Collaborated NGOs: $c_a_ngo</p>";
+            echo "<p>NGOs Contact Details: $c_a_ngo_contact</p>";
+            echo "<p>Number of Students Participated: $avgstu</p>";
             echo "<p>Additional Information: $addinfo</p>";
 
             echo "<h4>Reports:</h4>";
             foreach ($reports as $report) {
-                echo "<a href='$report' target='_blank'>Download Report</a><br>";
+                echo "<a href='uploads/$report' target='_blank'>Download Report</a><br>";
             }
 
             echo "<h4>Images:</h4>";
             foreach ($images as $image) {
-                echo "<img src='$image' alt='Event Image'><br>";
+                echo "<img src='uploads/$image' alt='Event Image'><br>";
             }
 
             echo '</div>';
