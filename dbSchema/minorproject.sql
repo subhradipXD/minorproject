@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Nov 02, 2023 at 07:39 PM
+-- Generation Time: Dec 09, 2023 at 02:03 PM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -53,18 +53,6 @@ INSERT INTO `admin` (`instid`, `instname`, `instlogo`, `instadd`, `instemail`, `
 -- --------------------------------------------------------
 
 --
--- Table structure for table `department`
---
-
-CREATE TABLE `department` (
-  `instid` varchar(255) NOT NULL,
-  `deptid` varchar(255) NOT NULL,
-  `deptname` varchar(255) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
 -- Table structure for table `event`
 --
 
@@ -93,7 +81,11 @@ CREATE TABLE `event` (
 --
 
 INSERT INTO `event` (`instid`, `fid`, `deptid`, `eventid`, `eventname`, `eventyear`, `scheme`, `c_a_n_govt`, `c_a_n_govt_contact`, `c_a_ind`, `c_a_ind_contact`, `c_a_ngo`, `c_a_ngo_contact`, `avgstu`, `images`, `reports`, `addinfo`) VALUES
-('Tech3373', 'BTech2', 'BTechCS', 'NCC0505', 'NCC', 2023, 'fdsfsdv', 'cavac', 'eafceac', 'cadevad', 'advdv', 'daveav', 'bgfhnn', '4', 'uploads/album_2023-10-17_23-47-56.gif', 'uploads/Manual-for-Autonomous-Colleges-15-4-2021.pdf', 'vvds');
+('Tech3373', 'EC3', 'MCA', 'NCC0465', 'NCC', 2023, 'NCC Sports Event Org By Techno College Under AK Sir', 'cavac', 'eafceac', 'cadevad', 'advdv', 'daveav', 'bgfhnn', '4', 'uploads/IMG_20230803_111115.jpg', 'uploads/Manual-for-Autonomous-Colleges-15-4-2021.pdf', 'NCC Sports Event Org By Techno College Under AK Sir'),
+('Tech3373', 'BTech1', 'BTechCS', 'NCC1060', 'NCC', 2023, 'ncc game ncc nccnccncc', 'cavac', 'eafceac', 'cadevad', 'advdv', 'daveav', 'bgfhnn', '4', 'uploads/album_2023-10-17_23-47-56.gif', 'uploads/MCA_(2Years)_Jun-2021.pdf', 'NCC nccnew newncc '),
+('Tech3373', 'EC3', 'MCA', 'NCC2676', 'NCC', 2023, 'NCC Sports Event Org By Techno College Under AK Sir', 'cavac', 'eafceac', 'cadevad', 'advdv', 'daveav', 'bgfhnn', '4', 'uploads/IMG_20230803_111115.jpg', 'uploads/Manual-for-Autonomous-Colleges-15-4-2021.pdf', 'NCC Sports Event Org By Techno College Under AK Sir'),
+('Tech3373', 'BTech2', 'BTechCS', 'NCC3792', 'NCC', 2023, 'vjhvhjbjknjbubjkjkh798t674e5tyfvghv jhn', 'cavac', 'eafceac', 'cadevad', 'advdv', 'daveav', 'bgfhnn', '4', 'uploads/album_2023-10-17_23-47-56.gif', 'uploads/Manual-for-Autonomous-Colleges-15-4-2021.pdf', ' jkn98h8uj09jpomip,'),
+('Tech3373', 'EC3', 'MCA', 'NCC6576', 'NCC', 2023, 'NCC Sports Event Org By Techno College Under AK Sir', 'cavac', 'eafceac', 'cadevad', 'advdv', 'daveav', 'bgfhnn', '4', 'uploads/IMG_20230803_111115.jpg', 'uploads/Manual-for-Autonomous-Colleges-15-4-2021.pdf', 'NCC Sports Event Org By Techno College Under AK Sir');
 
 -- --------------------------------------------------------
 
@@ -117,23 +109,16 @@ CREATE TABLE `faculty` (
 --
 
 INSERT INTO `faculty` (`instid`, `adminid`, `fid`, `fname`, `fdept`, `femail`, `fphno`, `fpass`) VALUES
-('Tech3373', 'Tech3373Subh3106', 'BTech1', 'Adhiraj', 'BTechCS', 'adhiraj.mca@gmail.com', 123456789, 'Li6kW98j'),
-('Tech3373', 'Tech3373Subh3106', 'BTech2', 'Gourav', 'BTechCS', 'gourav.mca@gmail.com', 123456789, 'X3mSXG6q'),
-('Tech3373', 'Tech3373Subh3106', 'BTech3', '', 'BTechCS', '.mca@gmail.com', 123456789, 'thPQQS36'),
-('hitk4825', 'hitk4825Subh4066', 'BTech4', 'Anirban', 'BTechCS', 'anirban.mca@gmail.com', 123456789, '6oAuUgw4'),
-('hitk4825', 'hitk4825Subh4066', 'BTech5', 'Gourav', 'BTechCS', 'gourav.mca@gmail.com', 123456789, 'R77Ym0YU'),
-('hitk4825', 'hitk4825Subh4066', 'BTech6', '', 'BTechCS', '.mca@gmail.com', 123456789, 'xoL9CNB1'),
-('Tech3373', 'Tech3373Subh3106', 'EC1', 'Som', 'EC', 'som.mca@gmail.com', 123456789, 'UBd6xRBH'),
-('Tech3373', 'Tech3373Subh3106', 'EC2', 'Subhra', 'EC', 'subhra.mca@gmail.com', 123456789, 'xN69bLK2'),
-('Tech3373', 'Tech3373Subh3106', 'EC3', 'Priya', 'EC', 'priya.mca@gmail.com', 123456789, '7B85auGE'),
-('hitk4825', 'hitk4825Subh4066', 'EC4', 'Atrayee', 'EC', 'atrayee.mca@gmail.com', 123456789, 'lLyE2gEu'),
-('hitk4825', 'hitk4825Subh4066', 'EC5', 'Subhradip', 'EC', 'subhradip.mca@gmail.com', 123456789, 'bQCCM7SA'),
-('hitk4825', 'hitk4825Subh4066', 'EC6', 'Pranati', 'EC', 'pranati.mca@gmail.com', 123456789, '0Oi3W3he'),
-('Tech3373', 'Tech3373Subh3106', 'MCA1', 'Arjun', 'MCA', 'arjun.mca@gmail.com', 123456789, 'X7SOfnzm'),
-('Tech3373', 'Tech3373Subh3106', 'MCA2', 'Soumik', 'MCA', 'soumik.mca@gmail.com', 123456789, 'dqfZmKQ4'),
-('Tech3373', 'Tech3373Subh3106', 'MCA3', '', 'MCA', '.mca@gmail.com', 123456789, '73D0sojF'),
-('hitk4825', 'hitk4825Subh4066', 'MCA6', 'Pritam', 'MCA', 'pritam.mca@gmail.com', 123456789, 'Y8O3wjus'),
-('hitk4825', 'hitk4825Subh4066', 'MCA7', '', 'MCA', '.mca@gmail.com', 123456789, 'RE0zUdqI');
+('Tech3373', 'Tech3373Subh3106', 'BTech1', 'Adhiraj', 'BTechCS', 'adhiraj.mca@gmail.com', 123456789, 'dIAmO5ra'),
+('Tech3373', 'Tech3373Subh3106', 'BTech2', 'Gourav', 'BTechCS', 'gourav.mca@gmail.com', 123456789, 'yQO8WKFu'),
+('hitk4825', 'hitk4825Subh4066', 'BTech4', 'Adhiraj', 'EC', 'adhiraj.mca@gmail.com', 2147483647, '6oAuUgw4'),
+('hitk4825', 'hitk4825Subh4066', 'BTech5', 'Adhiraj', 'EC', 'adhiraj.mca@gmail.com', 2147483647, 'R77Ym0YU'),
+('hitk4825', 'hitk4825Subh4066', 'BTech6', 'Adhiraj', 'EC', 'adhiraj.mca@gmail.com', 2147483647, 'xoL9CNB1'),
+('hitk4825', 'hitk4825Subh4066', 'EC4', 'Adhiraj', 'EC', 'adhiraj.mca@gmail.com', 2147483647, 'lLyE2gEu'),
+('hitk4825', 'hitk4825Subh4066', 'EC5', 'Adhiraj', 'EC', 'adhiraj.mca@gmail.com', 2147483647, 'bQCCM7SA'),
+('hitk4825', 'hitk4825Subh4066', 'EC6', 'Adhiraj', 'EC', 'adhiraj.mca@gmail.com', 2147483647, '0Oi3W3he'),
+('hitk4825', 'hitk4825Subh4066', 'MCA6', 'Adhiraj', 'EC', 'adhiraj.mca@gmail.com', 2147483647, 'Y8O3wjus'),
+('hitk4825', 'hitk4825Subh4066', 'MCA7', 'Adhiraj', 'EC', 'adhiraj.mca@gmail.com', 2147483647, 'RE0zUdqI');
 
 -- --------------------------------------------------------
 
@@ -153,8 +138,17 @@ CREATE TABLE `researchwork` (
   `duration` varchar(255) NOT NULL,
   `ecopy` varchar(255) NOT NULL,
   `fundstatement` varchar(255) NOT NULL,
-  `activereport` varchar(255) NOT NULL
+  `activereport` varchar(255) NOT NULL,
+  `addinfo` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `researchwork`
+--
+
+INSERT INTO `researchwork` (`proid`, `instid`, `deptname`, `fid`, `proname`, `picopi`, `fundagent`, `award`, `duration`, `ecopy`, `fundstatement`, `activereport`, `addinfo`) VALUES
+('ML3018', 'Tech3373', 'MCA', 'EC2', 'ML', 'SG Sir ', 'Keu Na', '2021', '23', 'uploads/Manual-for-Autonomous-Colleges-15-4-2021.pdf', 'uploads/Manual-for-Autonomous-Colleges-15-4-2021.pdf', 'uploads/Manual-for-Autonomous-Colleges-15-4-2021.pdf', 'We Complete machine learning project under sg sir'),
+('Web Dev2371', 'Tech3373', 'MCA', 'EC2', 'Web Dev', 'Ak Sir', 'Keu Na', '2021', '23', 'uploads/Manual-for-Autonomous-Colleges-15-4-2021.pdf', 'uploads/Manual-for-Autonomous-Colleges-15-4-2021.pdf', 'uploads/Manual-for-Autonomous-Colleges-15-4-2021.pdf', 'web development project under AK Sir it was nice experience ');
 
 --
 -- Indexes for dumped tables
@@ -167,39 +161,49 @@ ALTER TABLE `admin`
   ADD PRIMARY KEY (`instid`,`adminid`);
 
 --
--- Indexes for table `department`
---
-ALTER TABLE `department`
-  ADD PRIMARY KEY (`deptid`,`instid`),
-  ADD KEY `instid` (`instid`);
-
---
 -- Indexes for table `event`
 --
 ALTER TABLE `event`
-  ADD PRIMARY KEY (`eventid`);
+  ADD PRIMARY KEY (`eventid`),
+  ADD KEY `instid` (`instid`),
+  ADD KEY `fid` (`fid`);
 
 --
 -- Indexes for table `faculty`
 --
 ALTER TABLE `faculty`
-  ADD PRIMARY KEY (`fid`);
+  ADD PRIMARY KEY (`fid`),
+  ADD KEY `instid` (`instid`);
 
 --
 -- Indexes for table `researchwork`
 --
 ALTER TABLE `researchwork`
-  ADD PRIMARY KEY (`proid`);
+  ADD PRIMARY KEY (`proid`),
+  ADD KEY `instid` (`instid`),
+  ADD KEY `fid` (`fid`);
 
 --
 -- Constraints for dumped tables
 --
 
 --
--- Constraints for table `department`
+-- Constraints for table `event`
 --
-ALTER TABLE `department`
-  ADD CONSTRAINT `department_ibfk_1` FOREIGN KEY (`instid`) REFERENCES `admin` (`instid`);
+ALTER TABLE `event`
+  ADD CONSTRAINT `event_ibfk_1` FOREIGN KEY (`instid`) REFERENCES `admin` (`instid`);
+
+--
+-- Constraints for table `faculty`
+--
+ALTER TABLE `faculty`
+  ADD CONSTRAINT `faculty_ibfk_1` FOREIGN KEY (`instid`) REFERENCES `admin` (`instid`);
+
+--
+-- Constraints for table `researchwork`
+--
+ALTER TABLE `researchwork`
+  ADD CONSTRAINT `researchwork_ibfk_1` FOREIGN KEY (`instid`) REFERENCES `admin` (`instid`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
