@@ -108,121 +108,184 @@ $event_result = $result->get_result();
 <head>
     <meta charset="UTF-8">
     <title>Event Details Form</title>
-    <link rel="stylesheet" type="text/css" href="frupload.css">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <style>
+        body {
+            background-color: #88c8f7;
+            /* Specific blue shade */
+        }
+
+        .container {
+            padding: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-control,
+        .form-select {
+            margin-bottom: 10px;
+        }
+
+        .table {
+            margin-top: 20px;
+        }
+    </style>
 </head>
 
 <body>
-    <h2>Event Details Form</h2>
-    <form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post" enctype="multipart/form-data">
-        <label for="eventname">Event Name:</label>
-        <input type="text" name="eventname" required><br>
+    <div class="container">
+        <h2 class="text-center text-primary">Event Details Form</h2>
+        <form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post" enctype="multipart/form-data">
+            <!-- Form groups for inputs -->
+            <div class="form-group">
+                <label for="eventname">Event Name:</label>
+                <input type="text" name="eventname" class="form-control" required>
+            </div>
 
-        <label for="eventyear">Event Year:</label>
-        <input type="text" name="eventyear" required><br>
+            <div class="form-group">
+                <label for="eventyear">Event Year:</label>
+                <input type="text" name="eventyear" class="form-control" required>
+            </div>
 
-        <label for="faculty_department">Select Department:</label>
-        <select name="faculty_department" required>
-            <option value="" disabled selected>Select Department</option>
-            <?php
-            while ($dept_row = $dept_result->fetch_assoc()) {
-                echo '<option value="' . $dept_row['fdept'] . '">' . $dept_row['fdept'] . '</option>';
-            }
-            ?>
-        </select>
+            <div class="form-group">
+                <label for="faculty_department">Select Department:</label>
+                <select name="faculty_department" class="form-select" required>
+                    <option value="" disabled selected>Select Department</option>
+                    <?php
+                    while ($dept_row = $dept_result->fetch_assoc()) {
+                        echo '<option value="' . $dept_row['fdept'] . '">' . $dept_row['fdept'] . '</option>';
+                    }
+                    ?>
+                </select>
+            </div>
 
-        <label for="faculty_name">Select Faculty Name:</label>
-        <select name="faculty_name" required>
-            <option value="" disabled selected>Select Faculty Name</option>
-            <?php
-            while ($faculty_row = $faculty_result->fetch_assoc()) {
-                echo '<option value="' . $faculty_row['fid'] . '">' . $faculty_row['fname'] . '</option>';
-            }
-            ?>
-        </select>
+            <div class="form-group">
+                <label for="faculty_name">Select Faculty Name:</label>
+                <select name="faculty_name" class="form-select" required>
+                    <option value="" disabled selected>Select Faculty Name</option>
+                    <?php
+                    while ($faculty_row = $faculty_result->fetch_assoc()) {
+                        echo '<option value="' . $faculty_row['fid'] . '">' . $faculty_row['fname'] . '</option>';
+                    }
+                    ?>
+                </select>
+            </div>
 
-        <label for="scheme">Scheme:</label>
-        <textarea type="text" rows="4" name="scheme" required></textarea><br>
+            <div class="form-group">
+                <label for="scheme">Scheme:</label>
+                <textarea name="scheme" class="form-control" rows="4" required></textarea>
+            </div>
 
-        <label for="c_a_n_govt">Collaborated Non-Government Agency:</label>
-        <input type="text" name="c_a_n_govt" required><br>
+            <div class="form-group">
+                <label for="c_a_n_govt">Collaborated Non-Government Agency:</label>
+                <input type="text" name="c_a_n_govt" class="form-control" required>
+            </div>
 
-        <label for="c_a_n_govt_contact">Non-Government Agency Contact Details:</label>
-        <input type="text" name="c_a_n_govt_contact" required><br>
+            <div class="form-group">
+                <label for="c_a_n_govt_contact">Non-Government Agency Contact Details:</label>
+                <input type="text" name="c_a_n_govt_contact" class="form-control" required>
+            </div>
 
-        <label for="c_a_ind">Collaborated Industry:</label>
-        <input type="text" name="c_a_ind" required><br>
+            <div class="form-group">
+                <label for="c_a_ind">Collaborated Industry:</label>
+                <input type="text" name="c_a_ind" class="form-control" required>
+            </div>
 
-        <label for="c_a_ind_contact">Industry Contact Details:</label>
-        <input type="text" name="c_a_ind_contact" required><br>
+            <div class="form-group">
+                <label for="c_a_ind_contact">Industry Contact Details:</label>
+                <input type="text" name="c_a_ind_contact" class="form-control" required>
+            </div>
 
-        <label for="c_a_ngo">Collaborated NGOs:</label>
-        <input type="text" name="c_a_ngo" required><br>
+            <div class="form-group">
+                <label for="c_a_ngo">Collaborated NGOs:</label>
+                <input type="text" name="c_a_ngo" class="form-control" required>
+            </div>
 
-        <label for="c_a_ngo_contact">NGOs Contact Details:</label>
-        <input type="text" name="c_a_ngo_contact" required><br>
+            <div class="form-group">
+                <label for="c_a_ngo_contact">NGOs Contact Details:</label>
+                <input type="text" name="c_a_ngo_contact" class="form-control" required>
+            </div>
 
-        <label for="avgstu">Number of Students Participated:</label>
-        <input type="number" name="avgstu" required><br>
+            <div class="form-group">
+                <label for="avgstu">Number of Students Participated:</label>
+                <input type="number" name="avgstu" class="form-control" required>
+            </div>
 
-        <label for="addinfo">Additional Information:</label>
-        <textarea name="addinfo" rows="4" required></textarea><br>
+            <div class="form-group">
+                <label for="addinfo">Additional Information:</label>
+                <textarea name="addinfo" class="form-control" rows="4" required></textarea>
+            </div>
 
-        <label for="images[]">Upload Event Images:</label>
-        <input type="file" name="images[]" accept="image/*" multiple><br>
+            <div class="form-group">
+                <label for="images[]">Upload Event Images:</label>
+                <input type="file" name="images[]" class="form-control" accept="image/*" multiple>
+            </div>
 
-        <label for="reports[]">Upload PDF Reports:</label>
-        <input type="file" name="reports[]" accept=".pdf" multiple required><br>
+            <div class="form-group">
+                <label for="reports[]">Upload PDF Reports:</label>
+                <input type="file" name="reports[]" class="form-control" accept=".pdf" multiple required>
+            </div>
 
-        <input type="submit" value="Submit">
-    </form>
+            <input type="submit" class="btn btn-primary" value="Submit">
+        </form>
 
-    <h2>Event Details</h2>
-    <?php if ($event_result->num_rows > 0) : ?>
-        <table>
-            <tr>
-                <th>Event Name</th>
-                <th>Event Year</th>
-                <th>Department</th>
-                <th>Faculty Name</th>
-                <th>Scheme</th>
-                <th>Collaborated NGOs</th>
-                <th>Number of Students Participated</th>
-                <th>Additional Information</th>
-                <th>Images</th>
-                <th>Reports</th>
-            </tr>
-            <?php while ($row = $event_result->fetch_assoc()) : ?>
-                <tr>
-                    <td><?php echo $row["eventname"]; ?></td>
-                    <td><?php echo $row["eventyear"]; ?></td>
-                    <td><?php echo $row["deptid"]; ?></td>
-                    <td><?php echo $row["fid"]; ?></td>
-                    <td><?php echo $row["scheme"]; ?></td>
-                    <td><?php echo $row["c_a_ngo"]; ?></td>
-                    <td><?php echo $row["avgstu"]; ?></td>
-                    <td><?php echo $row["addinfo"]; ?></td>
-                    <td>
-                        <?php
-                        $images = explode(',', $row["images"]);
-                        foreach ($images as $image) {
-                            echo "<a href='$image' target='_blank'>View Image</a><br>";
-                        }
-                        ?>
-                    </td>
-                    <td>
-                        <?php
-                        $reports = explode(',', $row["reports"]);
-                        foreach ($reports as $report) {
-                            echo "<a href='$report' target='_blank'>View Report</a><br>";
-                        }
-                        ?>
-                    </td>
-                </tr>
-            <?php endwhile; ?>
-        </table>
-    <?php else : ?>
-        <p>No event details are available.</p>
-    <?php endif; ?>
+        <h2 class="text-center text-primary">Event Details</h2>
+        <?php if ($event_result->num_rows > 0) : ?>
+            <table class="table table-striped">
+                <thead class="table-primary">
+                    <tr>
+                        <th>Event Name</th>
+                        <th>Event Year</th>
+                        <th>Department</th>
+                        <th>Faculty Name</th>
+                        <th>Scheme</th>
+                        <th>Collaborated NGOs</th>
+                        <th>Number of Students Participated</th>
+                        <th>Additional Information</th>
+                        <th>Images</th>
+                        <th>Reports</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php while ($row = $event_result->fetch_assoc()) : ?>
+                        <tr>
+                            <td><?php echo $row["eventname"]; ?></td>
+                            <td><?php echo $row["eventyear"]; ?></td>
+                            <td><?php echo $row["deptid"]; ?></td>
+                            <td><?php echo $row["fid"]; ?></td>
+                            <td><?php echo $row["scheme"]; ?></td>
+                            <td><?php echo $row["c_a_ngo"]; ?></td>
+                            <td><?php echo $row["avgstu"]; ?></td>
+                            <td><?php echo $row["addinfo"]; ?></td>
+                            <td>
+                                <?php
+                                $images = explode(',', $row["images"]);
+                                foreach ($images as $image) {
+                                    echo "<a href='$image' target='_blank'>View Image</a><br>";
+                                }
+                                ?>
+                            </td>
+                            <td>
+                                <?php
+                                $reports = explode(',', $row["reports"]);
+                                foreach ($reports as $report) {
+                                    echo "<a href='$report' target='_blank'>View Report</a><br>";
+                                }
+                                ?>
+                            </td>
+                        </tr>
+                    <?php endwhile; ?>
+                </tbody>
+            </table>
+        <?php else : ?>
+            <p class="text-center">No event details are available.</p>
+        <?php endif; ?>
+
+        <!-- Bootstrap Bundle JS -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
 </body>
 
 </html>

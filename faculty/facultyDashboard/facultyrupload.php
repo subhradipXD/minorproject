@@ -39,6 +39,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $fundagent = $_POST["fundagent"];
     $award = $_POST["award"];
     $duration = $_POST["duration"];
+    $addinfo = $_POST["addinfo"];
 
     // File upload paths
     $ecopy = "uploads/" . basename($_FILES["ecopy"]["name"]);
@@ -51,9 +52,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     move_uploaded_file($_FILES["activereport"]["tmp_name"], $activereport);
 
     // Insert data into the "researchwork" table
-    $sql = "INSERT INTO researchwork (proid, instid, deptname, fid, proname, picopi, fundagent, award, duration, ecopy, fundstatement, activereport) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    $sql = "INSERT INTO researchwork (proid, instid, deptname, fid, proname, picopi, fundagent, award, duration, ecopy, fundstatement, activereport, addinfo) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("sssssssiisss", $proid, $inst_id, $selectedDepartment, $selectedFaculty, $proname, $picopi, $fundagent, $award, $duration, $ecopy, $fundstatement, $activereport);
+    $stmt->bind_param("sssssssiissss", $proid, $inst_id, $selectedDepartment, $selectedFaculty, $proname, $picopi, $fundagent, $award, $duration, $ecopy, $fundstatement, $activereport, $addinfo);
 
     if ($stmt->execute()) {
         echo "Research paper details have been successfully submitted.";
@@ -76,103 +77,164 @@ $researchwork_result = $result->get_result();
 <head>
     <meta charset="UTF-8">
     <title>Research Paper Details</title>
-    <link rel="stylesheet" type="text/css" href="frupload.css">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <style>
+        body {
+            background-color: #88c8f7;
+            /* Light blue background */
+        }
+
+        .container {
+            padding: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-control {
+            margin-bottom: 10px;
+        }
+
+        .table {
+            margin-top: 20px;
+        }
+    </style>
 </head>
 
 <body>
-    <h2>Research Paper Details Form</h2>
-    <form action="#" method="post" enctype="multipart/form-data">
-        <label for="proname">Name of Project:</label>
-        <input type="text" name="proname" required><br>
+    <div class="container">
+        <h2 class="text-center text-primary">Research Paper Details Form</h2>
+        <form action="#" method="post" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="proname">Name of Project:</label>
+                <input type="text" name="proname" class="form-control" required>
+            </div>
 
-        <label for="picopi">Name of Project Instructor:</label>
-        <input type="text" name="picopi" required><br>
+            <div class="form-group">
+                <label for="picopi">Name of Project Instructor:</label>
+                <input type="text" name="picopi" class="form-control" required>
+            </div>
 
-        <label for ="faculty_department">Select Department:</label>
-        <select name="faculty_department" required>
-            <option value="" disabled selected>Select Department</option>
-            <?php
-            while ($dept_row = $dept_result->fetch_assoc()) {
-                echo '<option value="' . $dept_row['fdept'] . '">' . $dept_row['fdept'] . '</option>';
-            }
-            ?>
-        </select>
+            <div class="form-group">
+                <label for="faculty_department">Select Department:</label>
+                <select name="faculty_department" class="form-select" required>
+                    <option value="" disabled selected>Select Department</option>
+                    <?php
+                    while ($dept_row = $dept_result->fetch_assoc()) {
+                        echo '<option value="' . $dept_row['fdept'] . '">' . $dept_row['fdept'] . '</option>';
+                    }
+                    ?>
+                </select>
+            </div>
 
-        <label for ="faculty_name">Select Faculty Name:</label>
-        <select name="faculty_name" required>
-            <option value="" disabled selected>Select Faculty Name</option>
-            <?php
-            while ($faculty_row = $faculty_result->fetch_assoc()) {
-                echo '<option value="' . $faculty_row['fid'] . '">' . $faculty_row['fname'] . '</option>';
-            }
-            ?>
-        </select>
+            <!-- Additional form groups for other inputs -->
+            <div class="form-group">
+                <label for="faculty_name">Select Faculty Name:</label>
+                <select name="faculty_name" class="form-select" required>
+                    <option value="" disabled selected>Select Faculty Name</option>
+                    <?php
+                    while ($faculty_row = $faculty_result->fetch_assoc()) {
+                        echo '<option value="' . $faculty_row['fid'] . '">' . $faculty_row['fname'] . '</option>';
+                    }
+                    ?>
+                </select>
+            </div>
 
-        <label for="fundagent">Funding Agency:</label>
-        <input type="text" name="fundagent" required><br>
+            <div class="form-group">
+                <label for="fundagent">Funding Agency:</label>
+                <input type="text" name="fundagent" class="form-control" required>
+            </div>
 
-        <label for="award">Year of Award:</label>
-        <input type="number" name="award" required><br>
+            <div class="form-group">
+                <label for="award">Year of Award:</label>
+                <input type="number" name="award" class="form-control" required>
+            </div>
 
-        <label for="duration">Duration of Project (in months):</label>
-        <input type="number" name="duration" required><br>
+            <div class="form-group">
+                <label for="duration">Duration of Project (in months):</label>
+                <input type="number" name="duration" class="form-control" required>
+            </div>
 
-        <label for="ecopy">E-Copy (PDF):</label>
-        <input type="file" name="ecopy" accept=".pdf" required><br>
+            <div class="form-group">
+                <label for="ecopy">E-Copy (PDF):</label>
+                <input type="file" name="ecopy" class="form-control" accept=".pdf" required>
+            </div>
 
-        <label for="fundstatement">Fund Release Statement (PDF):</label>
-        <input type="file" name="fundstatement" accept=".pdf" required><br>
+            <div class="form-group">
+                <label for="fundstatement">Fund Release Statement (PDF):</label>
+                <input type="file" name="fundstatement" class="form-control" accept=".pdf" required>
+            </div>
 
-        <label for="activereport">Activity Report (PDF):</label>
-        <input type="file" name="activereport" accept=".pdf" required><br>
+            <div class="form-group">
+                <label for="activereport">Activity Report (PDF):</label>
+                <input type="file" name="activereport" class="form-control" accept=".pdf" required>
+            </div>
 
-        <input type="submit" value="Submit">
-    </form>
+            <div class="form-group">
+                <label for="addinfo">Additional Information:</label>
+                <textarea name="addinfo" class="form-control" rows="4" required></textarea>
+            </div>
 
-    <h2>Research Work Details</h2>
-    <?php if ($researchwork_result->num_rows > 0) : ?>
-        <table>
-            <tr>
-                <th>Name of Project</th>
-                <th>Name of Project Instructor</th>
-                <th>Funding Agency</th>
-                <th>Year of Award</th>
-                <th>Duration of Project</th>
-                <th>E-Copy</th>
-                <th>Fund Release Statement</th>
-                <th>Activity Report</th>
-            </tr>
-            <?php while ($row = $researchwork_result->fetch_assoc()) : ?>
-                <tr>
-                    <td><?php echo $row["proname"]; ?></td>
-                    <td><?php echo $row["picopi"]; ?></td>
-                    <td><?php echo $row["fundagent"]; ?></td>
-                    <td><?php echo $row["award"]; ?></td>
-                    <td><?php echo $row["duration"]; ?></td>
-                    <td>
-                        <?php
-                        $ecopy = $row["ecopy"];
-                        echo "<a href='$ecopy' target='_blank'>View E-Copy</a>";
-                        ?>
-                    </td>
-                    <td>
-                        <?php
-                        $fundstatement = $row["fundstatement"];
-                        echo "<a href='$fundstatement' target='_blank'>View Fund Release Statement</a>";
-                        ?>
-                    </td>
-                    <td>
-                        <?php
-                        $activereport = $row["activereport"];
-                        echo "<a href='$activereport' target='_blank'>View Activity Report</a>";
-                        ?>
-                    </td>
-                </tr>
-            <?php endwhile; ?>
-        </table>
-    <?php else : ?>
-        <p>No research work projects are available.</p>
-    <?php endif; ?>
+
+            <input type="submit" class="btn btn-primary" value="Submit">
+        </form>
+
+        <h2 class="text-center text-primary">Research Work Details</h2>
+        <?php if ($researchwork_result->num_rows > 0) : ?>
+            <table class="table table-striped">
+                <thead class="table-primary">
+                    <tr>
+                        <th>Name of Project</th>
+                        <th>Name of Project Instructor</th>
+                        <th>Funding Agency</th>
+                        <th>Year of Award</th>
+                        <th>Duration of Project</th>
+                        <th>E-Copy</th>
+                        <th>Fund Release Statement</th>
+                        <th>Activity Report</th>
+                        <th>Additional Information</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php while ($row = $researchwork_result->fetch_assoc()) : ?>
+                        <tr>
+                            <td><?php echo $row["proname"]; ?></td>
+                            <td><?php echo $row["picopi"]; ?></td>
+                            <td><?php echo $row["fundagent"]; ?></td>
+                            <td><?php echo $row["award"]; ?></td>
+                            <td><?php echo $row["duration"]; ?></td>
+                            <td>
+                                <?php
+                                $ecopy = $row["ecopy"];
+                                echo "<a href='$ecopy' target='_blank'>View E-Copy</a>";
+                                ?>
+                            </td>
+                            <td>
+                                <?php
+                                $fundstatement = $row["fundstatement"];
+                                echo "<a href='$fundstatement' target='_blank'>View Fund Release Statement</a>";
+                                ?>
+                            </td>
+                            <td>
+                                <?php
+                                $activereport = $row["activereport"];
+                                echo "<a href='$activereport' target='_blank'>View Activity Report</a>";
+                                ?>
+                            </td>
+                            <td><?php echo $row["addinfo"]; ?></td>
+                        </tr>
+                    <?php endwhile; ?>
+                </tbody>
+            </table>
+        <?php else : ?>
+            <p class="text-center">No research work projects are available.</p>
+        <?php endif; ?>
+    </div>
+
+    <!-- Bootstrap Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
 </body>
 
 </html>
