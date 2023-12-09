@@ -43,7 +43,7 @@ require '../connect.php'; // Include the database connection file
     $proid = $_GET['proid'];
     $eventid = $_GET['eventid'];
 
-    if (!empty($proid)) {
+    if ($proid !== 'null') {
         $sql = "SELECT * FROM researchwork WHERE proid = ?";
         $result = $conn->prepare($sql);
         $result->bind_param("s", $proid);
@@ -69,7 +69,6 @@ require '../connect.php'; // Include the database connection file
             <p>No research work projects are available.</p>
         <?php endif;
     } else {
-        $eventid = 'NCC1060';
         $sql = "SELECT * FROM event WHERE eventid = ?";
         $result = $conn->prepare($sql);
         $result->bind_param("s", $eventid);

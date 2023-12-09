@@ -24,18 +24,127 @@ require '../connect.php'; // Include the database connection file
         .btn {
             margin: 5px;
         }
+
+        .sidebar {
+            height: 100%;
+            width: 0;
+            position: fixed;
+            z-index: 1;
+            top: 0;
+            right: 0;
+            background-color: rgba(255, 255, 255, 0.5);
+            overflow-x: hidden;
+            transition: 0.5s;
+            padding-top: 60px;
+        }
+
+        .sidebar a {
+            padding: 8px 8px 8px 32px;
+            text-decoration: none;
+            font-size: 25px;
+            color: #818181;
+            display: block;
+            transition: 0.3s;
+        }
+
+        .sidebar a:hover {
+            color: #f1f1f1;
+        }
+
+        .sidebar .closebtn {
+            position: absolute;
+            top: 0;
+            right: 25px;
+            font-size: 36px;
+            margin-left: 50px;
+        }
+
+        .openbtn {
+            font-size: 20px;
+            cursor: pointer;
+            padding: 10px 15px;
+            border: none;
+        }
+
+        .openbtn:hover {
+            background-color: #88c8f7;
+        }
+
+        /* On smaller screens, where height is less than 450px, change the style of the sidenav (less padding and a smaller font size) */
+        @media screen and (max-height: 450px) {
+            .sidebar {
+                padding-top: 15px;
+            }
+
+            .sidebar a {
+                font-size: 18px;
+            }
+        }
     </style>
 </head>
 
 <body>
-    <div class="container">
-        <h2 class="text-center text-primary">Welcome to the Platform</h2>
 
-        <div class="d-grid gap-2">
-            <button class="btn btn-primary" onclick="location.href='../Admin/adminreg.php'">New Registration for Institution</button>
-            <button class="btn btn-primary" onclick="location.href='../Admin/adminlogin.php'">Login as Institution's Admin</button>
-            <button class="btn btn-primary" onclick="location.href='../Faculty/facultylogin.php'">Login as Institution's Faculty</button>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container-fluid">
+            <!-- Logo -->
+            <a class="navbar-brand" href="#">
+                <img src="../_cc75286c-bd8d-4890-8939-6e30c7565dfa.jpg" alt="UNI-RECORD" class="img-fluid mr-2" width=50px>
+                UNI-RECORD
+            </a>
+
+            <!-- Toggle Button -->
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon">Button</span>
+            </button>
+
+            <!-- Navbar Links -->
+            <div class="collapse navbar-collapse justify-content-end">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="../WSPage/aboutus.html">About Us</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="../WSPage/contactus.html">Contact Us</a>
+                    </li>
+                    <!-- Add more navigation links as needed -->
+
+                    <!-- Sidebar Toggle Button -->
+                    <li class="nav-item">
+                        <button class="nav-link btn btn-outline-primary openbtn" id="toggle-btn" onclick="openNav()">&#9776;</button>
+                    </li>
+                </ul>
+            </div>
         </div>
+    </nav>
+
+    <div id="mySidebar" class="sidebar">
+        <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">×</a>
+        <button class="btn btn-primary" onclick="location.href='../Admin/adminreg.php'">New Registration for Institution</button>
+        <button class="btn btn-primary" onclick="location.href='../Admin/adminlogin.php'">Login as Institution's Admin</button>
+        <button class="btn btn-primary" onclick="location.href='../Faculty/facultylogin.php'">Login as Institution's Faculty</button>
+        <button class="btn btn-primary" onclick="location.href='../WSPage/helpdesk.html'">Help Desk</button>
+    </div>
+
+
+    <script>
+        function openNav() {
+            document.getElementById("mySidebar").style.width = "250px";
+            document.getElementById("main").style.marginLeft = "250px";
+        }
+
+        function closeNav() {
+            document.getElementById("mySidebar").style.width = "0";
+            document.getElementById("main").style.marginLeft = "0";
+        }
+    </script>
+
+
+    <div class="container">
+        <h2 class="text-center text-primary">Welcome to the UNI-RECORD</h2>
 
         <h3 class="text-center mt-4">Search</h3>
 
@@ -55,10 +164,10 @@ require '../connect.php'; // Include the database connection file
             $eventResults = [];
 
             // Search in the admin table for institution names
-            $adminQuery = "SELECT instid FROM admin WHERE instname LIKE ?";
+            $adminQuery = "SELECT instid FROM admin WHERE instname LIKE ? OR instid LIKE ?";
             $adminStmt = $conn->prepare($adminQuery);
             $searchKeyword = '%' . $keywords . '%';
-            $adminStmt->bind_param("s", $searchKeyword);
+            $adminStmt->bind_param("ss", $searchKeyword, $searchKeyword);
             $adminStmt->execute();
             $adminResult = $adminStmt->get_result();
 
@@ -68,10 +177,23 @@ require '../connect.php'; // Include the database connection file
                 $institutionResults[] = $instid;
             }
 
+            // Search in the faculty table for faculty names
+            $facultyQuery = "SELECT fid FROM faculty WHERE fname LIKE ?";
+            $facultyStmt = $conn->prepare($facultyQuery);
+            $facultyStmt->bind_param("s", $searchKeyword);
+            $facultyStmt->execute();
+            $facultyResult = $facultyStmt->get_result();
+
+            while ($row = $facultyResult->fetch_assoc()) {
+                $fid = $row['fid'];
+                // Store the faculty results
+                $facultyResults[] = $fid;
+            }
+
             // Search in the researchwork table for project names and additional info
-            $researchWorkQuery = "SELECT proid FROM researchwork WHERE proname LIKE ? OR addinfo LIKE ? OR picopi LIKE ?";
+            $researchWorkQuery = "SELECT proid FROM researchwork WHERE proname LIKE ? OR addinfo LIKE ?";
             $researchWorkStmt = $conn->prepare($researchWorkQuery);
-            $researchWorkStmt->bind_param("sss", $searchKeyword, $searchKeyword, $searchKeyword);
+            $researchWorkStmt->bind_param("ss", $searchKeyword, $searchKeyword);
             $researchWorkStmt->execute();
             $researchWorkResult = $researchWorkStmt->get_result();
 
@@ -94,105 +216,233 @@ require '../connect.php'; // Include the database connection file
                 $eventResults[] = $eventid;
             }
 
+            // Display search results
             if (!empty($institutionResults)) {
                 // If institution results are found, show related research work and event details
                 echo "<h4 class='text-primary'>Institutions:</h4>";
                 foreach ($institutionResults as $instid) {
-                    echo "<div class='mb-3'>";
-
                     // Display related research work
-                    $relatedResearchWorkQuery = "SELECT * FROM researchwork WHERE instid = ?";
-                    $relatedResearchWorkStmt = $conn->prepare($relatedResearchWorkQuery);
-                    $relatedResearchWorkStmt->bind_param("s", $instid);
-                    $relatedResearchWorkStmt->execute();
-                    $relatedResearchWorkResult = $relatedResearchWorkStmt->get_result();
-
-                    $relatedproid = "SELECT proid FROM researchwork WHERE instid = ?";
-                    $relatedproidStmt = $conn->prepare($relatedproid);
-                    $relatedproidStmt->bind_param("s", $instid);
-                    $relatedproidStmt->execute();
-                    $relatedproidResult = $relatedproidStmt->get_result();
-
-                    echo "<h5 class='text-secondary'>Related Research Work:</h5>";
-                    if ($relatedResearchWorkResult->num_rows > 0) {
-                        while ($researchWorkRow = $relatedResearchWorkResult->fetch_assoc()) {
-                            $proidres = $relatedproidResult->fetch_assoc();
-                            $proid = $proidres['proid'];
-                            echo "<p><strong>Project Name: <a href='details.php?proid=$proid&eventid=null'></strong>" . $researchWorkRow['proname'] . "</a></p>";
-                            echo "<p><strong>Project Instructor:</strong> " . $researchWorkRow['picopi'] . "</p>";
-                            echo "<p><strong>Funding Agency:</strong> " . $researchWorkRow['fundagent'] . "</p>";
-                            echo "<p><strong>Year of Award:</strong> " . $researchWorkRow['award'] . "</p>";
-                            echo "<p><strong>Duration of Project:</strong> " . $researchWorkRow['duration'] . " months</p>";
-                            echo "<p><strong>Additional Information:</strong> " . $researchWorkRow['addinfo'] . "</p>";
-                        }
-                    } else {
-                        echo "<p>No related research work found.</p>";
-                    }
+                    displayResearchWorkDetails($instid);
 
                     // Display related events
-                    $relatedEventQuery = "SELECT * FROM event WHERE instid = ?";
-                    $relatedEventStmt = $conn->prepare($relatedEventQuery);
-                    $relatedEventStmt->bind_param("s", $instid);
-                    $relatedEventStmt->execute();
-                    $relatedEventResult = $relatedEventStmt->get_result();
+                    displayEventDetails($instid);
+                }
+            }
 
-                    $relatedEveid = "SELECT eventid FROM event WHERE instid = ?";
-                    $relatedEveidStmt = $conn->prepare($relatedEveid);
-                    $relatedEveidStmt->bind_param("s", $instid);
-                    $relatedEveidStmt->execute();
-                    $relatedEveidResult = $relatedEveidStmt->get_result();
+            if (!empty($facultyResults)) {
+                // If faculty results are found, show related research work and event details
+                echo "<h4 class='text-primary'>Faculty:</h4>";
+                foreach ($facultyResults as $fid) {
+                    // Display related research work
+                    displayResearchWorkDetailsByFaculty($fid);
+                    // Display related events
+                    displayEventDetailsByFaculty($fid);
+                }
+            }
 
-                    echo "<h5 class='text-secondary'>Related Events:</h5>";
-                    if ($relatedEventResult->num_rows > 0) {
-                        while ($eventRow = $relatedEventResult->fetch_assoc()) {
-                            $eveidres = $relatedEveidResult->fetch_assoc();
-                            $eventid = $eveidres['eventid'];
-                            echo "<div class='mb-3'>";
-                            echo "<p><strong>Event Name: <a href='details.php?eventid=$eventid&proid=null'></strong>" . $eventRow['eventname'] . "</a></p>";
-                            echo "<p><strong>Event Year:</strong> " . $eventRow['eventyear'] . "</p>";
-                            echo "<p><strong>Scheme:</strong> " . $eventRow['scheme'] . "</p>";
-                            echo "<p><strong>Collaborative Govt. Agency:</strong> " . $eventRow['c_a_n_govt'] . "</p>";
-                            echo "<p><strong>Collaborative Industry Agency:</strong> " . $eventRow['c_a_ind'] . "</p>";
-                            echo "<p><strong>Collaborative NGO Agency:</strong> " . $eventRow['c_a_ngo'] . "</p>";
-                            echo "<p><strong>Number of Students Participated:</strong> " . $eventRow['avgstu'] . "</p>";
-                            echo "<p><strong>Additional Information:</strong> " . $eventRow['addinfo'] . "</p>";
-                            echo "</div>";
-                        }
-                    } else {
-                        echo "<p>No related events found.</p>";
-                    }
-                    echo "</div>";
+            if (!empty($researchWorkResults)) {
+                // If research work results are found, display them
+                echo "<h4 class='text-primary'>Research Works:</h4>";
+                foreach ($researchWorkResults as $proid) {
+                    displayResearchWorkDetailsById($proid);
+                }
+            }
 
-                    if (!empty($researchWorkResults)) {
-                        // If research work results are found, display them
-                        echo "<h4> class='text-primary'>Research Works:</h4>";
-                        foreach ($researchWorkResults as $proid) {
-                            $researchWorkQuery = "SELECT proname, picopi, fundagent, award, duration, addinfo FROM researchwork WHERE proid = ?";
-                            $researchWorkStmt = $conn->prepare($researchWorkQuery);
-                            $researchWorkStmt->bind_param("s", $proid);
-                            $researchWorkStmt->execute();
-                            $researchWorkResult = $researchWorkStmt->get_result();
+            if (!empty($eventResults)) {
+                // If event results are found, display them
+                echo "<h4 class='text-primary'>Events:</h4>";
+                foreach ($eventResults as $eventid) {
+                    displayEventDetailsById($eventid);
+                }
+            }
 
-                            if ($researchWorkResult->num_rows > 0) {
-                                while ($researchWorkRow = $researchWorkResult->fetch_assoc()) {
-                                    echo "<div class='mb-3'>";
-                                    echo "<p><strong>Project Name: <a href='details.php?proid=$proid&eventid=null'></strong>" . $researchWorkRow['proname'] . "</a></p>";
-                                    echo "<p><strong>Project Instructor:</strong> " . $researchWorkRow['picopi'] . "</p>";
-                                    echo "<p><strong>Funding Agency:</strong> " . $researchWorkRow['fundagent'] . "</p>";
-                                    echo "<p><strong>Year of Award:</strong> " . $researchWorkRow['award'] . "</p>";
-                                    echo "<p><strong>Duration of Project:</strong> " . $researchWorkRow['duration'] . " months</p>";
-                                    echo "<p><strong>Additional Information:</strong> " . $researchWorkRow['addinfo'] . "</p>";
-                                    echo "</div>";
-                                }
-                            } else {
-                                echo "<p>No research work found for this ID.</p>";
-                            }
-                        }
-                    }
+            if (empty($institutionResults) && empty($researchWorkResults) && empty($eventResults) && empty($facultyResults)) {
+                echo "<p class='text-center'>No results found.</p>";
+            }
+        }
 
-                    if (empty($institutionResults) && empty($researchWorkResults) && empty($eventResults)) {
-                        echo "<p class='text-center'>No results found.</p>";
-                    }
+        // Function to display related research work details by institution ID
+        function displayResearchWorkDetails($instid)
+        {
+            global $conn;
+
+            $instNameQuery = "SELECT instname FROM admin WHERE instid = ?";
+            $instNameStmt = $conn->prepare($instNameQuery);
+            $instNameStmt->bind_param("s", $instid);
+            $instNameStmt->execute();
+            $instNameResult = $instNameStmt->get_result();
+            $instNameRow = $instNameResult->fetch_assoc();
+            $instName = $instNameRow['instname'];
+
+            $researchWorkQuery = "SELECT * FROM researchwork WHERE instid = ?";
+            $researchWorkStmt = $conn->prepare($researchWorkQuery);
+            $researchWorkStmt->bind_param("s", $instid);
+            $researchWorkStmt->execute();
+            $researchWorkResult = $researchWorkStmt->get_result();
+
+            if ($researchWorkResult->num_rows > 0) {
+                echo "<h5 class='text-secondary'>Research Works in $instName:</h5>";
+                echo "<ul>";
+                while ($row = $researchWorkResult->fetch_assoc()) {
+                    echo "<li>";
+                    echo "<strong>Project Name:</strong> <a href='details.php?proid={$row['proid']}&eventid=null'>" . $row['proname'] . "</a><br>";
+                    echo "<strong>Funded by:</strong> " . $row['fundagent'] . "<br>";
+                    echo "<strong>Award:</strong> " . $row['award'] . "<br>";
+                    // Add more fields as needed
+                    echo "</li>";
+                }
+                echo "</ul>";
+            }
+        }
+
+        // Function to display related event details by institution ID
+        function displayEventDetails($instid)
+        {
+            global $conn;
+
+            $instNameQuery = "SELECT instname FROM admin WHERE instid = ?";
+            $instNameStmt = $conn->prepare($instNameQuery);
+            $instNameStmt->bind_param("s", $instid);
+            $instNameStmt->execute();
+            $instNameResult = $instNameStmt->get_result();
+            $instNameRow = $instNameResult->fetch_assoc();
+            $instName = $instNameRow['instname'];
+
+            $eventQuery = "SELECT * FROM event WHERE instid = ?";
+            $eventStmt = $conn->prepare($eventQuery);
+            $eventStmt->bind_param("s", $instid);
+            $eventStmt->execute();
+            $eventResult = $eventStmt->get_result();
+
+            if ($eventResult->num_rows > 0) {
+                echo "<h5 class='text-secondary'>Events in $instName:</h5>";
+                echo "<ul>";
+                while ($row = $eventResult->fetch_assoc()) {
+                    echo "<li>";
+                    echo "<strong>Event Name:</strong> <a href='details.php?proid=null&eventid={$row['eventid']}'>" . $row['eventname'] . "</a><br>";
+                    echo "<strong>Scheme:</strong> " . $row['scheme'] . "<br>";
+                    echo "<strong>Additional Information:</strong> " . $row['addinfo'] . "<br>";
+                    // Add more fields as needed
+                    echo "</li>";
+                }
+                echo "</ul>";
+            }
+        }
+
+        // Function to display related research work details by faculty ID
+        function displayResearchWorkDetailsByFaculty($fid)
+        {
+            global $conn;
+
+            $facultyNameQuery = "SELECT fname FROM faculty WHERE fid = ?";
+            $facultyNameStmt = $conn->prepare($facultyNameQuery);
+            $facultyNameStmt->bind_param("s", $fid);
+            $facultyNameStmt->execute();
+            $facultyNameResult = $facultyNameStmt->get_result();
+            $facultyNameRow = $facultyNameResult->fetch_assoc();
+            $facultyName = $facultyNameRow['fname'];
+
+            $researchWorkQuery = "SELECT * FROM researchwork WHERE fid = ?";
+            $researchWorkStmt = $conn->prepare($researchWorkQuery);
+            $researchWorkStmt->bind_param("s", $fid);
+            $researchWorkStmt->execute();
+            $researchWorkResult = $researchWorkStmt->get_result();
+
+            if ($researchWorkResult->num_rows > 0) {
+                echo "<h5 class='text-secondary'>Research Works for Faculty $facultyName:</h5>";
+                echo "<ul>";
+                while ($row = $researchWorkResult->fetch_assoc()) {
+                    echo "<li>";
+                    echo "<strong>Project Name:</strong> <a href='details.php?proid={$row['proid']}&eventid=null'>" . $row['proname'] . "</a><br>";
+                    echo "<strong>Funded by:</strong> " . $row['fundagent'] . "<br>";
+                    echo "<strong>Award:</strong> " . $row['award'] . "<br>";
+                    // Add more fields as needed
+                    echo "</li>";
+                }
+                echo "</ul>";
+            }
+        }
+
+        // Function to display related event details by faculty ID
+        function displayEventDetailsByFaculty($fid)
+        {
+            global $conn;
+
+            $facultyNameQuery = "SELECT fname FROM faculty WHERE fid = ?";
+            $facultyNameStmt = $conn->prepare($facultyNameQuery);
+            $facultyNameStmt->bind_param("s", $fid);
+            $facultyNameStmt->execute();
+            $facultyNameResult = $facultyNameStmt->get_result();
+            $facultyNameRow = $facultyNameResult->fetch_assoc();
+            $facultyName = $facultyNameRow['fname'];
+
+            $eventQuery = "SELECT * FROM event WHERE fid = ?";
+            $eventStmt = $conn->prepare($eventQuery);
+            $eventStmt->bind_param("s", $fid);
+            $eventStmt->execute();
+            $eventResult = $eventStmt->get_result();
+
+            if ($eventResult->num_rows > 0) {
+                echo "<h5 class='text-secondary'>Events for Faculty $facultyName:</h5>";
+                echo "<ul>";
+                while ($row = $eventResult->fetch_assoc()) {
+                    echo "<li>";
+                    echo "<strong>Event Name:</strong> <a href='details.php?proid=null&eventid={$row['eventid']}'>" . $row['eventname'] . "</a><br>";
+                    echo "<strong>Scheme:</strong> " . $row['scheme'] . "<br>";
+                    echo "<strong>Additional Information:</strong> " . $row['addinfo'] . "<br>";
+                    // Add more fields as needed
+                    echo "</li>";
+                }
+                echo "</ul>";
+            }
+        }
+
+        // Function to display research work details by project ID
+        function displayResearchWorkDetailsById($proid)
+        {
+            global $conn;
+
+            $researchWorkQuery = "SELECT * FROM researchwork WHERE proid = ?";
+            $researchWorkStmt = $conn->prepare($researchWorkQuery);
+            $researchWorkStmt->bind_param("s", $proid);
+            $researchWorkStmt->execute();
+            $researchWorkResult = $researchWorkStmt->get_result();
+
+            if ($researchWorkResult->num_rows > 0) {
+                echo "<h5 class='text-secondary'>Research Work Details for Project $proid:</h5>";
+                while ($row = $researchWorkResult->fetch_assoc()) {
+                    echo "<p>";
+                    echo "<strong>Project Name:</strong> <a href='details.php?eventid=null&proid={$row['proid']}'>" . $row['proname'] . "</a><br>";
+                    echo "<strong>Funded by:</strong> " . $row['fundagent'] . "<br>";
+                    echo "<strong>Award:</strong> " . $row['award'] . "<br>";
+                    // Add more fields as needed
+                    echo "</p>";
+                }
+            }
+        }
+
+        // Function to display event details by event ID
+        function displayEventDetailsById($eventid)
+        {
+            global $conn;
+
+            $eventQuery = "SELECT * FROM event WHERE eventid = ?";
+            $eventStmt = $conn->prepare($eventQuery);
+            $eventStmt->bind_param("s", $eventid);
+            $eventStmt->execute();
+            $eventResult = $eventStmt->get_result();
+
+            if ($eventResult->num_rows > 0) {
+                echo "<h5 class='text-secondary'>Event Details for Event $eventid:</h5>";
+                while ($row = $eventResult->fetch_assoc()) {
+                    echo "<p>";
+                    echo "<strong>Event Name:</strong> <a href='details.php?proid=null&eventid={$row['eventid']}'>" . $row['eventname'] . "</a><br>";
+                    echo "<strong>Scheme:</strong> " . $row['scheme'] . "<br>";
+                    echo "<strong>Contact (Govt):</strong> " . $row['c_a_n_govt_contact'] . "<br>";
+                    echo "<strong>Contact (Ind):</strong> " . $row['c_a_ind_contact'] . "<br>";
+                    echo "<strong>Contact (NGO):</strong> " . $row['c_a_ngo_contact'] . "<br>";
+                    // Add more fields as needed
+                    echo "</p>";
                 }
             }
         }
@@ -200,6 +450,7 @@ require '../connect.php'; // Include the database connection file
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+
 </body>
 
 </html>
