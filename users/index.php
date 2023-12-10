@@ -29,7 +29,7 @@ require '../connect.php'; // Include the database connection file
             height: 100%;
             width: 0;
             position: fixed;
-            z-index: 1;
+            z-index: 3;
             top: 0;
             right: 0;
             background-color: rgba(255, 255, 255, 0.5);
@@ -70,6 +70,11 @@ require '../connect.php'; // Include the database connection file
             background-color: #88c8f7;
         }
 
+        .navbar{
+            z-index: 0;
+            height: 50px;
+        }
+
         /* On smaller screens, where height is less than 450px, change the style of the sidenav (less padding and a smaller font size) */
         @media screen and (max-height: 450px) {
             .sidebar {
@@ -85,11 +90,11 @@ require '../connect.php'; // Include the database connection file
 
 <body>
 
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
         <div class="container-fluid">
             <!-- Logo -->
             <a class="navbar-brand" href="#">
-                <img src="../_cc75286c-bd8d-4890-8939-6e30c7565dfa.jpg" alt="UNI-RECORD" class="img-fluid mr-2" width=50px>
+                <img src="../_cc75286c-bd8d-4890-8939-6e30c7565dfa.jpg" alt="UNI-RECORD" class="img-fluid mr-2" width=40px>
                 UNI-RECORD
             </a>
 
@@ -102,7 +107,7 @@ require '../connect.php'; // Include the database connection file
             <div class="collapse navbar-collapse justify-content-end">
                 <ul class="navbar-nav">
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Home</a>
+                        <a class="nav-link active" href="#">Home</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="../WSPage/aboutus.html">About Us</a>
@@ -142,15 +147,17 @@ require '../connect.php'; // Include the database connection file
         }
     </script>
 
+    <br>
+    <br>
+    <br>
 
     <div class="container">
         <h2 class="text-center text-primary">Welcome to the UNI-RECORD</h2>
-
-        <h3 class="text-center mt-4">Search</h3>
+        <br>
 
         <!-- Create a search form -->
         <form class="d-flex justify-content-center" method="get" action="<?php echo $_SERVER['PHP_SELF']; ?>">
-            <input type="text" name="keywords" class="form-control" placeholder="Enter keywords..." aria-label="Search">
+            <input type="text" name="keywords" class="form-control" placeholder="Search in Uni-Record..." aria-label="Search">
             <input type="submit" class="btn btn-primary" value="Search">
         </form>
 
