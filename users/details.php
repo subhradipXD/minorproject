@@ -8,6 +8,8 @@ require '../connect.php'; // Include the database connection file
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
@@ -22,7 +24,8 @@ require '../connect.php'; // Include the database connection file
             border: 1px solid #ddd;
             padding: 10px;
             margin-bottom: 20px;
-            background-color: #fff; /* Set background color for details block */
+            background-color: #fff;
+            /* Set background color for details block */
         }
 
         .image-list,
@@ -81,7 +84,7 @@ require '../connect.php'; // Include the database connection file
             background-color: #88c8f7;
         }
 
-        .navbar{
+        .navbar {
             z-index: 0;
             height: 50px;
         }
@@ -118,7 +121,7 @@ require '../connect.php'; // Include the database connection file
             <div class="collapse navbar-collapse justify-content-end">
                 <ul class="navbar-nav">
                     <li class="nav-item">
-                        <a class="nav-link active" href="#">Home</a>
+                        <a class="nav-link" href="#">Home</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="../WSPage/aboutus.html">About Us</a>
@@ -157,8 +160,8 @@ require '../connect.php'; // Include the database connection file
             document.getElementById("main").style.marginLeft = "0";
         }
     </script>
-<br>
-<br>
+    <br>
+    <br>
     <?php
     $proid = $_GET['proid'];
     $eventid = $_GET['eventid'];
@@ -169,7 +172,7 @@ require '../connect.php'; // Include the database connection file
         $result->bind_param("s", $proid);
         $result->execute();
         $researchwork_result = $result->get_result();
-        ?>
+    ?>
         <h2>Research Work Details</h2>
         <?php if ($researchwork_result->num_rows > 0) : ?>
             <?php while ($row = $researchwork_result->fetch_assoc()) : ?>
@@ -199,7 +202,7 @@ require '../connect.php'; // Include the database connection file
         <?php if ($event_result->num_rows > 0) : ?>
             <?php while ($row = $event_result->fetch_assoc()) : ?>
                 <div class="details-block">
-                    <p><strong>Event Name:</strong> <?php echo $row["eventname"]; ?></p>
+                    <p id="eventName"><strong>Event Name:</strong> <?php echo $row["eventname"]; ?></p>
                     <p><strong>Event Year:</strong> <?php echo $row["eventyear"]; ?></p>
                     <p><strong>Department:</strong> <?php echo $row["deptid"]; ?></p>
                     <p><strong>Faculty Name:</strong> <?php echo $row["fid"]; ?></p>
@@ -213,7 +216,8 @@ require '../connect.php'; // Include the database connection file
                         $images = explode(',', $row["images"]);
                         foreach ($images as $image) {
                             $imagePath = "../faculty/facultyDashboard/" . $image;
-                            echo "<li><a href='$imagePath' target='_blank'>View Image</a></li>";
+                            // echo "<li><a href='$imagePath' target='_blank'>View Image</a></li>";
+                            echo '<img src="' . $imagePath . '" style="width: 200px;">';
                         }
                         ?>
                     </ul>
@@ -231,28 +235,44 @@ require '../connect.php'; // Include the database connection file
             <?php endwhile; ?>
         <?php else : ?>
             <p>No event details are available.</p>
-        <?php endif;
+    <?php endif;
     }
     ?>
 
     <!-- Add a button to trigger the PDF generation -->
-    <button class="btn btn-primary" onclick="generatePDF()">Print</button>
+    <button class="btn btn-primary" id="print_btn">Print</button>
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
 
-    <!-- Include the jsPDF library -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
     <script>
-        import { jsPDF } from "jspdf";
+        // import { jsPDF } from "jspdf";
+        //  const jsPDF = require("jspdf");
+
+
+        const printBtn = document.getElementById("print_btn");
+
+        printBtn.addEventListener('click', generatePDF);
+
         function generatePDF() {
-            const pdf = new jsPDF();
+            const pdf = new jspdf.jsPDF();
             const elements = document.querySelectorAll('.details-block');
 
-            elements.forEach(element => {
-                pdf.text(element.innerText, 10, pdf.previousAutoTable.finalY + 10);
-            });
+
+            const singleElement = elements[0].children;
+
+            let y = 20;
+
+            pdf.text(elements[0].innerText, 10, y);
+
+
+            // elements.forEach(element => {
+            //     console.log(element)
+
+            //     pdf.text(element.innerText, 10, y);
+            //     y +=10;
+            // });
 
             pdf.save('details.pdf');
         }

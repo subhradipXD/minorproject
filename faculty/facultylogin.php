@@ -1,28 +1,26 @@
 <?php
 require '../connect.php'; // Include the database connection file
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $email = $_POST["mailuid"];
-    $password = $_POST["pwd"];
-    $instituteId = $_POST["instituteid"];
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['login-submit'])) {
+    // Get user input
+    $instituteID = mysqli_real_escape_string($conn, $_POST['instituteid']);
+    $facultyEmail = mysqli_real_escape_string($conn, $_POST['mailuid']);
+    $password = mysqli_real_escape_string($conn, $_POST['pwd']);
 
-    // SQL query to fetch faculty data based on email, password, and Institute ID
-    $sql = "SELECT * FROM faculty WHERE femail = '$email' AND fpass = '$password' AND instid = '$instituteId'";
-    $result = mysqli_query($conn, $sql);
+    // SQL query to check login credentials
+    $sql = "SELECT * FROM faculty WHERE instid='$instituteID' AND femail='$facultyEmail' AND fpass='$password'";
+    $result = $conn->query($sql);
 
-    if ($result && mysqli_num_rows($result) > 0) {
-        // Faculty login successful, start a session with institution ID, email, and faculty ID
-        $facultyData = mysqli_fetch_assoc($result);
-        session_start();
-        $_SESSION['instid'] = $instituteId;
-        $_SESSION['femail'] = $email;
-        $_SESSION['fid'] = $facultyData['fid'];
-
-        // Redirect to the faculty dashboard
-        header("location: facultyDashboard/facultydashboard.php");
-        exit;
+    if ($result->num_rows == 1) {
+        // Valid credentials, start session and redirect
+        $row = $result->fetch_assoc();
+        $_SESSION['instid'] = $row['instid'];
+        $_SESSION['femail'] = $row['femail'];
+        $_SESSION['fid'] = $row['fid'];
+        
+        header("Location: facultyDashboard/facultydashboard.php");
     } else {
-        $error_message = "Invalid email, password, or Institute ID. Please try again.";
+        $error_message = "Invalid email, password, or Institute ID. Please try again!";
     }
 }
 ?>
@@ -172,7 +170,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">×</a>
         <button class="btn btn-primary" onclick="location.href='../Admin/adminreg.php'">New Registration for Institution</button>
         <button class="btn btn-primary" onclick="location.href='../Admin/adminlogin.php'">Login as Institution's Admin</button>
-        <button class="btn btn-primary" onclick="location.href='../Faculty/facultylogin.php'">Login as Institution's Faculty</button>
         <button class="btn btn-primary" onclick="location.href='../WSPage/helpdesk.html'">Help Desk</button>
     </div>
 

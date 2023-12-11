@@ -1,73 +1,60 @@
 <?php
-require '../connect.php'; // Include the database connection file
-
-// Function to check password complexity
-function isPasswordValid($password)
-{
-    // Add your password complexity rules here
-    return preg_match('/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/', $password);
-}
-
-// Define the target directory for file uploads
-$uploadDirectory = 'uploads/';
-$msg = '';
+require '../connect.php';
+$msg = "";
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $instname = $_POST["instname"];
-    $instadd = $_POST["instadd"];
-    $instemail = $_POST["instemail"];
-    $instphno = $_POST["instphno"];
-    $name = $_POST["name"];
-    $adminemail = $_POST["adminemail"];
-    $adminphno = $_POST["adminphno"];
-    $pass = $_POST["pass"];
-    $confirmpass = isset($_POST["confirmpass"]) ? $_POST["confirmpass"] : null;
+    // Validate and sanitize form data
+    $instname = mysqli_real_escape_string($conn, $_POST['instname']);
+    $instlogo = mysqli_real_escape_string($conn, $_FILES['instlogo']['name']); // Note: Handle file uploads properly in production code
+    $instadd = mysqli_real_escape_string($conn, $_POST['instadd']);
+    $instemail = mysqli_real_escape_string($conn, $_POST['instemail']);
+    $instphno = mysqli_real_escape_string($conn, $_POST['instphno']);
+    $name = mysqli_real_escape_string($conn, $_POST['name']);
+    $adminemail = mysqli_real_escape_string($conn, $_POST['adminemail']);
+    $adminphno = mysqli_real_escape_string($conn, $_POST['adminphno']);
+    $password = mysqli_real_escape_string($conn, $_POST['pass']);
+    $adminimage = mysqli_real_escape_string($conn, $_FILES['adminimage']['name']); // Note: Handle file uploads properly in production code
 
-    // Check if passwords match
-    if ($pass !== $confirmpass) {
-        $msg = "Error: Passwords do not match.";
+    // Password validation
+    $confirmpassword = mysqli_real_escape_string($conn, $_POST['confirmpass']);
+
+    if ($password !== $confirmpassword) {
+        die("Passwords do not match.");
+    }
+
+    $passwordRegex = '/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/';
+    if (!preg_match($passwordRegex, $password)) {
+        die("Password must contain at least one lowercase letter, one uppercase letter, one number, and one special character, and be at least 6 characters long.");
+    }
+
+    // Generate institution ID
+    $instid = substr($instname, 0, 4) . rand(1000, 9999);
+
+    // Generate admin ID
+    $adminid = $instid . substr($name, 0, 4) . rand(1000, 9999);
+
+    // Upload images to the 'uploads' folder (Make sure the folder has the correct permissions)
+    move_uploaded_file($_FILES['instlogo']['tmp_name'], 'uploads/' . $instlogo);
+    move_uploaded_file($_FILES['adminimage']['tmp_name'], 'uploads/' . $adminimage);
+
+    // Insert data into the database
+    $sql = "INSERT INTO admin (instid, instname, instlogo, instadd, instemail, instphno, adminid, name, email, phno, pass, adminimage)
+            VALUES ('$instid', '$instname', '$instlogo', '$instadd', '$instemail', '$instphno', '$adminid', '$name', '$adminemail', '$adminphno', '$password', '$adminimage')";
+
+    if (mysqli_query($conn, $sql)) {
+        $msg = "Registration successful!";
+        // Assuming successful login, set session variables
+        $_SESSION['instid'] = $instid; // replace $instid with the actual instid value
+        $_SESSION['adminid'] = $adminid; // replace $adminid with the actual adminid value
+
+        // Redirect to the admin dashboard
+        header("Location: admindashboard.php");
     } else {
-        // Check if the password meets complexity requirements
-        if (!isPasswordValid($pass)) {
-            $msg = "Error: Password must contain at least 1 capital letter, 1 small letter, 1 special character, 1 numerical, and be at least 6 characters long.";
-        } else {
-            // Continue with the rest of your code
-            // Generate institution and admin IDs
-            $instid = substr($instname, 0, 4) . rand(1000, 9999);
-            $adminid = $instid . substr($name, 0, 4) . rand(1000, 9999);
-
-            // Process institution logo upload
-            $instlogo = $uploadDirectory . basename($_FILES["instlogo"]["name"]);
-            move_uploaded_file($_FILES["instlogo"]["tmp_name"], $instlogo);
-
-            // Process admin image upload
-            $adminimage = $uploadDirectory . basename($_FILES["adminimage"]["name"]);
-            move_uploaded_file($_FILES["adminimage"]["tmp_name"], $adminimage);
-
-            // Insert data into the "admin" table
-            $sql = "INSERT INTO admin (instid, instname, instlogo, instadd, instemail, instphno, adminid, name, email, phno, pass, adminimage) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-            $stmt = $conn->prepare($sql);
-            $stmt->bind_param("ssssssssssss", $instid, $instname, $instlogo, $instadd, $instemail, $instphno, $adminid, $name, $adminemail, $adminphno, $pass, $adminimage);
-
-
-            if ($stmt->execute()) {
-                echo '<script>';
-                echo 'swal({
-            title: "Success!",
-            text: "Admin registration has been successfully completed. Institution ID: ' . $instid . ' | Admin ID: ' . $adminid . '",
-            icon: "success",
-            button: "OK"
-        }).then(() => {
-            window.location.href = "admindashboard.php?adminid=' . $adminid . '&instid=' . $instid . '";
-        });';
-                echo '</script>';
-            } else {
-                $msg = "Error: " . $stmt->error;
-            }
-        }
+        $msg = "Error: " . $sql . "<br>" . mysqli_error($conn);
     }
 }
 ?>
+
 
 
 <!DOCTYPE html>
@@ -80,8 +67,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     <!-- Bootstrap CSS CDN -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
-    <!-- SweetAlert CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <style>
         body {
@@ -182,7 +167,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             height: 50px;
         }
 
-        .btn{
+        .btn {
             margin: 5px;
         }
 
@@ -218,7 +203,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <div class="collapse navbar-collapse justify-content-end">
                 <ul class="navbar-nav">
                     <li class="nav-item">
-                        <a class="nav-link active" href="#">Home</a>
+                        <a class="nav-link" href="#">Home</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="../WSPage/aboutus.html">About Us</a>
@@ -257,13 +242,40 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             document.getElementById("main").style.marginLeft = "0";
         }
     </script>
-    <br>
-    <br>
 
+    <script>
+        function validatePassword() {
+            var password = document.getElementById("pass").value;
+            var confirmPassword = document.getElementById("confirmpass").value;
+
+            // Password validation criteria
+            var passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/;
+
+            if (!password.match(passwordRegex)) {
+                alert("Password must contain at least one lowercase letter, one uppercase letter, one number, and one special character, and be at least 6 characters long.");
+                return false;
+            }
+
+            if (password !== confirmPassword) {
+                alert("Passwords do not match.");
+                return false;
+            }
+
+            return true;
+        }
+    </script>
+
+
+    <br>
+    <br>
     <h2 class="mb-4">Welcome to Uni-Record</h2>
     <h3 class="mb-4">Register Here</h3>
-    
-    <form action="#" method="post" enctype="multipart/form-data">
+    <br>
+    <?php
+    echo $msg;
+    ?>
+
+    <form action="#" method="post" enctype="multipart/form-data" onsubmit="return validatePassword()">
         <div class="mb-3">
             <label for="instname">Institution Name:</label>
             <input type="text" class="form-control" name="instname" required>
@@ -310,8 +322,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         </div>
 
         <div class="mb-3">
-            <label for="pass">Confirm Password:</label>
-            <input type="password" class="form-control" name="pass" minlength="6" required>
+            <label for="confirmpass">Confirm Password:</label>
+            <input type="password" class="form-control" name="confirmpass" minlength="6" required>
         </div>
 
         <div class="mb-3">
@@ -322,17 +334,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <div class="mb-3">
             <input type="submit" class="btn btn-primary" value="Register">
         </div>
-
-        <div style=color:red>
-        <?php
-        echo $msg;
-        ?>
-        </div>
     </form>
-
-        
-    <!-- Bootstrap JS and Popper.js CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+    </div>
 </body>
 
 </html>

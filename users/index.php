@@ -226,7 +226,6 @@ require '../connect.php'; // Include the database connection file
             // Display search results
             if (!empty($institutionResults)) {
                 // If institution results are found, show related research work and event details
-                echo "<h4 class='text-primary'>Institutions:</h4>";
                 foreach ($institutionResults as $instid) {
                     // Display related research work
                     displayResearchWorkDetails($instid);

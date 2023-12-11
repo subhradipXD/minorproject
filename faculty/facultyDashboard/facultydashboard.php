@@ -191,7 +191,7 @@ if ($faculty_result->num_rows > 0) {
             <div class="collapse navbar-collapse justify-content-end">
                 <ul class="navbar-nav">
                     <li class="nav-item">
-                        <a class="nav-link active" href="#">Home</a>
+                        <a class="nav-link" href="#">Home</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="../WSPage/aboutus.html">About Us</a>
@@ -214,7 +214,6 @@ if ($faculty_result->num_rows > 0) {
         <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">×</a>
         <button class="btn btn-primary" onclick="location.href='../Admin/adminreg.php'">New Registration for Institution</button>
         <button class="btn btn-primary" onclick="location.href='../Admin/adminlogin.php'">Login as Institution's Admin</button>
-        <button class="btn btn-primary" onclick="location.href='../Faculty/facultylogin.php'">Login as Institution's Faculty</button>
         <button class="btn btn-primary" onclick="location.href='../WSPage/helpdesk.html'">Help Desk</button>
         <!-- Logout Button -->
         <form action="logout.php" method="POST">

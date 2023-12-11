@@ -4,6 +4,8 @@ if (!isset($_SESSION['adminid']) || !isset($_SESSION['instid'])) {
     // Redirect to the login page if not logged in
     header("location: adminlogin.php");
 }
+
+$msg = "";
 function generateRandomPassword($length = 8)
 {
     $uppercaseChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -63,23 +65,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             }
             fclose($handle);
             if (!empty($duplicateEntries)) {
-                echo "Duplicate entries found for the following faculty IDs: " . implode(', ', $duplicateEntries);
+                $msg = "Duplicate entries found for the following faculty IDs: " . implode(', ', $duplicateEntries);
             }
             if (!empty($dataArray)) {
                 try {
                     $sql = "INSERT INTO faculty (fid, fname, fdept, femail, fphno, fpass, instid, adminid) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
                     $stmt = $conn->prepare($sql);
                     foreach ($dataArray as $row) {
-                        $stmt->bind_param("ssssssss", ...$row); // Bind parameters correctly
+                        $stmt->bind_param("ssssisss", ...$row); // Bind parameters correctly
                         $stmt->execute();
                     }
-                    echo "CSV data has been successfully inserted into the database.";
+                    $msg =  "CSV data has been successfully inserted into the database.";
                 } catch (PDOException $e) {
-                    echo "Database Error: " . $e->getMessage();
+                    $msg =  "Database Error: " . $e->getMessage();
                 }
             }
         } else {
-            echo "Please upload a valid CSV file.";
+            $msg =  "Please upload a valid CSV file.";
         }
     } elseif (isset($_POST['fid']) && isset($_POST['fname']) && isset($_POST['fdept']) && isset($_POST['femail']) && isset($_POST['fphno'])) {
         // Handle manual faculty entry
@@ -96,7 +98,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt->fetch();
         $stmt->close();
         if ($count > 0) {
-            echo "Duplicate entry found for the provided faculty ID or email.";
+            $msg =  "Duplicate entry found for the provided faculty ID or email.";
         } else {
             $fpass = generateRandomPassword();
             // Add instid and adminid from the session
@@ -108,9 +110,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $stmt->bind_param("ssssssss", $fid, $fname, $fdept, $femail, $fphno, $fpass, $instid, $adminid);
                 $stmt->execute();
 
-                echo "Faculty details added to the database with a random password.";
+                $msg =  "Faculty details added to the database with a random password.";
             } catch (PDOException $e) {
-                echo "Database Error: " . $e->getMessage();
+                $msg =  "Database Error: " . $e->getMessage();
             }
         }
     }
@@ -217,7 +219,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <div class="collapse navbar-collapse justify-content-end">
                 <ul class="navbar-nav">
                     <li class="nav-item">
-                        <a class="nav-link active" href="#">Home</a>
+                        <a class="nav-link" href="#">Home</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="../WSPage/aboutus.html">About Us</a>
@@ -238,10 +240,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     <div id="mySidebar" class="sidebar">
         <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">×</a>
-        <button class="btn btn-primary" onclick="location.href='../Admin/adminreg.php'">New Registration for Institution</button>
-        <button class="btn btn-primary" onclick="location.href='../Admin/adminlogin.php'">Login as Institution's Admin</button>
-        <button class="btn btn-primary" onclick="location.href='../Faculty/facultylogin.php'">Login as Institution's Faculty</button>
+        <button class="btn btn-primary" onclick="location.href='adminprofile.php'">Profile</button>
+        <br>
         <button class="btn btn-primary" onclick="location.href='../WSPage/helpdesk.html'">Help Desk</button>
+        <br>
         <!-- Logout Button -->
         <form action="logout.php" method="POST">
             <button type="submit" class="btn btn-danger">Logout</button>
@@ -262,8 +264,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
     </script>
 
+
     <div class="container">
-        <h1 class="mt-5">Upload and Process CSV Data</h1>
+        <h1 class="mt-5">Upload CSV File</h1>
 
         <!-- Upload CSV Form -->
         <form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post" enctype="multipart/form-data" class="mb-4">
@@ -299,6 +302,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             </div>
             <button type="submit" name="add-faculty" class="btn btn-primary">Add Faculty</button>
         </form>
+
+        <?php
+        echo $msg;
+        ?>
 
         <!-- Faculty Details Table -->
         <h2>Faculty Details</h2>
@@ -386,7 +393,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <input type="hidden" name="fid" value="<?php echo $fidToUpdate; ?>">
                 <button type="submit" name="update-faculty" class="btn btn-primary">Update Faculty</button>
             <?php else : ?>
-                <button type="submit" name="add-faculty" class="btn btn-primary">Add Faculty</button>
+                <button type="submit" name="add-faculty" class="btn btn-primary">Update Faculty</button>
             <?php endif; ?>
         </form>
 
@@ -403,6 +410,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     $updateStmt->close();
                     echo "Faculty details updated successfully.";
                     $updateMode = false; // Reset update mode after update
+                    echo "<script> location.href='admindashboard.php';</script>";
                 } else {
                     // Insert new faculty details into the database
                     $fpass = generateRandomPassword();
@@ -417,6 +425,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $deleteStmt->bind_param("s", $fidToDelete);
             $deleteStmt->execute();
             $deleteStmt->close();
+            echo "<script> location.href='admindashboard.php';</script>";
         }
         ?>
     </div>
