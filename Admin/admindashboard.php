@@ -24,8 +24,10 @@ function generateRandomPassword($length = 8)
     $randomPassword = str_shuffle($randomPassword);
     return $randomPassword;
 }
+
 $instid = $_SESSION['instid'];
 $adminid = $_SESSION['adminid'];
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (isset($_FILES['file'])) {
         $file = $_FILES['file']['tmp_name'];
@@ -46,8 +48,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 }
                 $fid = $data[0];
                 $femail = $data[3];
-                $stmt = $conn->prepare("SELECT COUNT(*) FROM faculty WHERE fid = ? ");
-                $stmt->bind_param("s", $fid);
+                $stmt = $conn->prepare("SELECT COUNT(*) FROM faculty WHERE fid = ? and instid = ? and adminid = ?");
+                $stmt->bind_param("sss", $fid, $instid, $adminid);
                 $stmt->execute();
                 $stmt->bind_result($count);
                 $stmt->fetch();
