@@ -70,7 +70,7 @@ require '../connect.php'; // Include the database connection file
             background-color: #88c8f7;
         }
 
-        .navbar{
+        .navbar {
             z-index: 0;
             height: 50px;
         }
@@ -170,22 +170,8 @@ require '../connect.php'; // Include the database connection file
             $researchWorkResults = [];
             $eventResults = [];
 
-            // Search in the admin table for institution names
-            $adminQuery = "SELECT instid FROM admin WHERE instname LIKE ? OR instid LIKE ?";
-            $adminStmt = $conn->prepare($adminQuery);
-            $searchKeyword = '%' . $keywords . '%';
-            $adminStmt->bind_param("ss", $searchKeyword, $searchKeyword);
-            $adminStmt->execute();
-            $adminResult = $adminStmt->get_result();
-
-            while ($row = $adminResult->fetch_assoc()) {
-                $instid = $row['instid'];
-                // Store the institution results
-                $institutionResults[] = $instid;
-            }
-
             // Search in the faculty table for faculty names
-            $facultyQuery = "SELECT fid FROM faculty WHERE fname LIKE ?";
+            $facultyQuery = "SELECT * FROM researchwork WHERE fid IN (SELECT fid FROM faculty WHERE fname LIKE ? );";
             $facultyStmt = $conn->prepare($facultyQuery);
             $facultyStmt->bind_param("s", $searchKeyword);
             $facultyStmt->execute();
@@ -197,10 +183,26 @@ require '../connect.php'; // Include the database connection file
                 $facultyResults[] = $fid;
             }
 
+
+            // Search in the admin table for institution names
+            $adminQuery = "SELECT instid FROM admin WHERE instname LIKE ? ";
+            $adminStmt = $conn->prepare($adminQuery);
+            $searchKeyword = '%' . $keywords . '%';
+            $adminStmt->bind_param("s", $searchKeyword);
+            $adminStmt->execute();
+            $adminResult = $adminStmt->get_result();
+
+            while ($row = $adminResult->fetch_assoc()) {
+                $instid = $row['instid'];
+                // Store the institution results
+                $institutionResults[] = $instid;
+            }
+
+            
             // Search in the researchwork table for project names and additional info
-            $researchWorkQuery = "SELECT proid FROM researchwork WHERE proname LIKE ? OR addinfo LIKE ?";
+            $researchWorkQuery = "SELECT proid FROM researchwork WHERE proname LIKE ? OR addinfo LIKE ? or picopi like ?";
             $researchWorkStmt = $conn->prepare($researchWorkQuery);
-            $researchWorkStmt->bind_param("ss", $searchKeyword, $searchKeyword);
+            $researchWorkStmt->bind_param("sss", $searchKeyword, $searchKeyword, $searchKeyword);
             $researchWorkStmt->execute();
             $researchWorkResult = $researchWorkStmt->get_result();
 
@@ -221,6 +223,35 @@ require '../connect.php'; // Include the database connection file
                 $eventid = $row['eventid'];
                 // Store the event results
                 $eventResults[] = $eventid;
+            }
+
+            //---------------------------------------------------------------
+            // Search in the researchwork table for projects with the specified year
+            $researchWorkQuery = "SELECT proid FROM researchwork WHERE award = ?";
+            $researchWorkStmt = $conn->prepare($researchWorkQuery);
+            $researchWorkStmt->bind_param("s", $searchKeyword);
+            $researchWorkStmt->execute();
+            $researchWorkResult = $researchWorkStmt->get_result();
+
+            // Initialize an array to store proids found in research work
+            $researchWorkProids = [];
+
+            while ($row = $researchWorkResult->fetch_assoc()) {
+                $researchWorkProids[] = $row['proid'];
+            }
+
+            // Search in the event table for events with the specified year
+            $eventQuery = "SELECT eventid FROM event WHERE eventyear = ?";
+            $eventStmt = $conn->prepare($eventQuery);
+            $eventStmt->bind_param("s", $searchKeyword);
+            $eventStmt->execute();
+            $eventResult = $eventStmt->get_result();
+
+            // Initialize an array to store eventids found in events
+            $eventEventids = [];
+
+            while ($row = $eventResult->fetch_assoc()) {
+                $eventEventids[] = $row['eventid'];
             }
 
             // Display search results
@@ -340,7 +371,7 @@ require '../connect.php'; // Include the database connection file
         {
             global $conn;
 
-            $facultyNameQuery = "SELECT fname FROM faculty WHERE fid = ?";
+            $facultyNameQuery = "SELECT * FROM event WHERE fid = ?";
             $facultyNameStmt = $conn->prepare($facultyNameQuery);
             $facultyNameStmt->bind_param("s", $fid);
             $facultyNameStmt->execute();
@@ -452,6 +483,56 @@ require '../connect.php'; // Include the database connection file
                 }
             }
         }
+
+        function displayResultsByYear($year)
+        {
+            global $conn;
+
+            // // Search in the researchwork table for projects with the specified year
+            // $researchWorkQuery = "SELECT proid FROM researchwork WHERE award = ?";
+            // $researchWorkStmt = $conn->prepare($researchWorkQuery);
+            // $researchWorkStmt->bind_param("s", $searchKeyword);
+            // $researchWorkStmt->execute();
+            // $researchWorkResult = $researchWorkStmt->get_result();
+
+            // // Initialize an array to store proids found in research work
+            // $researchWorkProids = [];
+
+            // while ($row = $researchWorkResult->fetch_assoc()) {
+            //     $researchWorkProids[] = $row['proid'];
+            // }
+
+            // // Search in the event table for events with the specified year
+            // $eventQuery = "SELECT eventid FROM event WHERE eventyear = ?";
+            // $eventStmt = $conn->prepare($eventQuery);
+            // $eventStmt->bind_param("s", $searchKeyword);
+            // $eventStmt->execute();
+            // $eventResult = $eventStmt->get_result();
+
+            // // Initialize an array to store eventids found in events
+            // $eventEventids = [];
+
+            // while ($row = $eventResult->fetch_assoc()) {
+            //     $eventEventids[] = $row['eventid'];
+            // }
+
+            // Display results based on research work proids
+            if (!empty($researchWorkProids)) {
+                echo "<h4 class='text-primary'>Research Works:</h4>";
+                foreach ($researchWorkProids as $proid) {
+                    displayResearchWorkDetailsById($proid);
+                }
+            }
+
+            // Display results based on event eventids
+            if (!empty($eventEventids)) {
+                echo "<h4 class='text-primary'>Events:</h4>";
+                foreach ($eventEventids as $eventid) {
+                    displayEventDetailsById($eventid);
+                }
+            }
+        }
+
         ?>
     </div>
 
